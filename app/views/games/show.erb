@@ -1,0 +1,13 @@
+<h2><%= @game.name %></h2>
+<h4><%= link_to @game.players[0].name, @game.players[0] %> vs <%= link_to @game.players[1].name, @game.players[1] %></h4>
+<table class=goban>
+	<% @game.size.times do |y| %>
+		<tr>
+			<% @game.size.times do |x| %>
+				<td class=goban_tile><%= image_tag "empty_tile.png" %></td>
+			<% end %>
+		</tr>
+	<% end %>
+</table>
+
+<canvas id="canvas"></canvas>

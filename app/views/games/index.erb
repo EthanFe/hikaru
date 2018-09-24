@@ -1,0 +1,19 @@
+<table>
+	<tr>
+		<td>Game Name</td>
+		<td>Player 1</td>
+		<td>Player 2</td>
+		<td>Moves</td>
+		<td>Size</td>
+	</tr>
+	<% @games.each do |game| %>
+		<% players = game.players %>
+		<tr>
+			<td><%= link_to game.name, game %></td>
+			<td><%= link_to players[0].name, players[0] %></td>
+			<td><%= link_to players[1].name, players[1] %></td>
+			<td><%= game.move_count %></td>
+			<td><%= "#{game.size}x#{game.size}" %></td>
+		</tr>
+	<% end %>
+</table>

@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  game_id: 1
+  player_id: 1
+  parent_move_id: 1
+  x: 1
+  'y': 1
+
+two:
+  game_id: 1
+  player_id: 1
+  parent_move_id: 1
+  x: 1
+  'y': 1

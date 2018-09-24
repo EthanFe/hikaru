@@ -1,0 +1,24 @@
+// Place all the styles related to the games controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+td.goban_tile > img {
+	width: 64px;
+	height: 64px;
+	// border: 0px;
+}
+
+table.goban {
+	border-collapse: collapse;
+	// cellpadding: 0;
+	// cellspacing: 0;
+	// border: 0;
+}
+
+td {
+	padding: 0;
+	line-height: 0px;
+	// border-spacing: 0px;
+	// margin: 0;
+	// font-size: 0px;
+}
