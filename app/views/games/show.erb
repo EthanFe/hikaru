@@ -1,13 +1,19 @@
 <h2><%= @game.name %></h2>
 <h4><%= link_to @game.players[0].name, @game.players[0] %> vs <%= link_to @game.players[1].name, @game.players[1] %></h4>
-<table class=goban>
-	<% @game.size.times do |y| %>
-		<tr>
-			<% @game.size.times do |x| %>
-				<td class=goban_tile><%= image_tag "empty_tile.png" %></td>
-			<% end %>
-		</tr>
-	<% end %>
-</table>
+<% if false %>
+	<table class=goban>
+		<% @game.size.times do |y| %>
+			<tr>
+				<% @game.size.times do |x| %>
+					<td class=goban_tile><%= image_tag "empty_tile.png" %></td>
+				<% end %>
+			</tr>
+		<% end %>
+	</table>
+<% end %>
 
-<canvas id="canvas"></canvas>
+<canvas id="canvas" width="576" height="576" onclick=getCursorPosition></canvas>
+
+<%= image_tag "empty_tile.png", id: "goban_tile_image", class: "invisible" %>
+<%= image_tag "tile_with_white.png", id: "goban_tile_with_white_image", class: "invisible" %>
+<%= image_tag "tile_with_black.png", id: "goban_tile_with_black_image", class: "invisible" %>

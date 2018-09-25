@@ -15,10 +15,14 @@ table.goban {
 	// border: 0;
 }
 
-td {
+td.goban_tile {
 	padding: 0;
 	line-height: 0px;
 	// border-spacing: 0px;
 	// margin: 0;
 	// font-size: 0px;
+}
+
+.invisible {
+	visibility: hidden;
 }

@@ -1,38 +1,49 @@
 require 'json'
+require 'pry'
 class GamesController < ApplicationController
+	skip_before_action :verify_authenticity_token # real secure boys
+	before_action :find_game_object, only: [:show, :play]
+
 	def index
 		@games = Game.all
 	end
 
 	def show
-		@game = Game.find(params[:id])
+
 	end
 
-	def js
-		# Move.find(id:move_id)
-		# render :json => {"data": "real data. we assure you this is not fake."}
+	def play
+		if @game.play_move(params[:x], params[:y])
+			render json: {"successful_move": "true", "board": @game.json_game_state}
+		else
+			render json: {"successful_move": "false", "board": @game.json_game_state}
+		end
 	end
 
-end
-=begin
-class SongsController < ApplicationController
 	def new
-    @song = Song.new
+		@game = Game.new
 	end
 
 	def create
-		@song = Song.new(song_params)
+		params[:size] = 9
+		params[:active_player] = 1
+		@game = Game.new(params.require(:game).permit(:name, :player_1, :player_2, :size, :active_player))
 		
-    if @song.save
-			redirect_to song_path(@song)
-    else
+    if @game.save
+			redirect_to game_path(@game)
+		else
       render :new
     end
 	end
 
-	def show
-		@song = Song.find(params[:id])
+	private
+
+	def find_game_object
+		@game = Game.find(params[:id])
 	end
+end
+=begin
+class SongsController < ApplicationController
 
 	def edit
 		@song = Song.find(params[:id])
@@ -46,10 +57,6 @@ class SongsController < ApplicationController
     else
       render :edit
     end
-	end
-
-	def index
-		@songs = Song.all
 	end
 
 	def destroy

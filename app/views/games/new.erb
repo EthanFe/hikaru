@@ -1,0 +1,6 @@
+<%= form_for(@game) do |f| %>
+	<%= f.text_field :name, placeholder: "Game Name" %><br/>
+	<%= f.text_field :player_1, placeholder: "Player 1" %><br/>
+	<%= f.text_field :player_2, placeholder: "Player 2" %><br/>
+  <%= f.submit %>
+<% end %>
