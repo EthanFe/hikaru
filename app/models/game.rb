@@ -6,11 +6,18 @@ class Game < ApplicationRecord
 	
 	validates :name, presence: true
 	validate :player_ids_are_valid
+	validate :players_are_different
 	
 	def player_ids_are_valid
 		unless player1_id && Player.find(player1_id).is_a?(Player) && 
 					 player2_id && Player.find(player2_id).is_a?(Player)
 			errors[:player1_id] << 'Game needs two valid players'
+		end
+	end
+
+	def players_are_different
+		if player1_id == player2_id
+			errors[:player1_id] << 'Players need to be different'
 		end
 	end
 
@@ -20,22 +27,6 @@ class Game < ApplicationRecord
 
 	def player_2
 	end
-
-	def player_1=(name)
-		player1_id = Player.find_by(name: name)
-	end
-
-	def player_2=(name)
-		player2_id = Player.find_by(name: name)
-	end
-
-
-
-
-
-
-
-
 
 
 	# Useful shit
