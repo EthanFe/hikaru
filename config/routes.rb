@@ -11,6 +11,7 @@ Rails.application.routes.draw do
   # end
 
   post 'games/:id/play', to: 'games#play'
+  get 'games/:id/board_state', to: 'games#board_state'
 
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 end

@@ -2,7 +2,7 @@ require 'json'
 require 'pry'
 class GamesController < ApplicationController
 	skip_before_action :verify_authenticity_token # real secure boys
-	before_action :find_game_object, only: [:show, :play]
+	before_action :find_game_object, only: [:show, :play, :board_state]
 
 	def index
 		@games = Game.all
@@ -40,6 +40,11 @@ class GamesController < ApplicationController
     end
 	end
 
+	def board_state
+		game_state = @game.get_board_state_by_groups(@game.last_move)
+		render json: {"board": game_state, "next_player": @game.active_player}
+	end
+
 	private
 
 	def find_game_object
@@ -48,20 +53,6 @@ class GamesController < ApplicationController
 end
 =begin
 class SongsController < ApplicationController
-
-	def edit
-		@song = Song.find(params[:id])
-	end
-
-	def update
-		@song = Song.find(params[:id])
-		
-    if @song.update(song_params)
-			redirect_to song_path(@song)
-    else
-      render :edit
-    end
-	end
 
 	def destroy
 		Song.find(params[:id]).destroy

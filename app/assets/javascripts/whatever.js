@@ -1,28 +1,9 @@
-document.addEventListener("DOMContentLoaded", function() {
-	var tile_size = 64;
-
-	var image = null;
-	images_collection = document.images
-	for(var i = 0; i < images_collection.length; i++) {
-  	if(images_collection[i].id == "goban_tile_image") {
-			image = images_collection[i]
-		}
-	}
-
-	var canvas = document.getElementById('canvas');
-	if (canvas.getContext) {
-		size = canvas.width / tile_size
-		var ctx = canvas.getContext('2d');
-		// ctx.drawImage(image, 0, 0, tile_size, tile_size);
-    for (var i = 0; i < size; i++) {
-      for (var j = 0; j < size; j++) {
-        ctx.drawImage(image, j * tile_size, i * tile_size, tile_size, tile_size);
-      }
-    }
-	}
+document.addEventListener("turbolinks:load", function() {
+	getData(document.URL + "/board_state", {})
+  .then(data => reDrawBoard(data["board"])) // JSON-string from `response.json()` call
+  .catch(error => console.error(error));
 
 	canvas.addEventListener('click', () => clickOnBoard(canvas, event), false);
-
 });
 
 function clickOnBoard(canvas, event) {
