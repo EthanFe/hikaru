@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  resources :players, only: [:index, :show]
+  resources :players, only: [:index, :show, :new, :create]
   # resources :messages
   # resources :chats
   # resources :moves

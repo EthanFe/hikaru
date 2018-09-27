@@ -1,0 +1,20 @@
+<h1><%= @player.name %></h1>
+<table>
+  <tr>
+    <td>Game Name</td>
+    <td>Opponent</td>
+    <td>Moves</td>
+    <td>Size</td>
+  </tr>
+  <% @player.games.each do |game| %><tr>
+    <% opponent = game.players[0].name == @player.name ? 1 : 0 %>
+    <tr>
+      <td><%= link_to game.name, game %></td>
+      <td><%= link_to game.players[opponent].name, game.players[opponent] %></td>
+      <td><%= game.move_count %></td>
+      <td><%= "#{game.size}x#{game.size}" %></td>
+    </tr>
+  <% end %>
+</table>
+
+<h6><%= link_to "Back", players_path %></h6>

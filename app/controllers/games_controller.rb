@@ -33,7 +33,7 @@ class GamesController < ApplicationController
 		player2_id = player2.id if player2
 		@game = Game.new(name: params[:game][:name], player1_id: player1_id, player2_id: player2_id, size: params[:game][:size], active_player: 1)
 		
-    if @game.save
+		if @game.save
 			redirect_to game_path(@game)
 		else
       render :new

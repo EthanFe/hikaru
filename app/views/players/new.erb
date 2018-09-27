@@ -1,0 +1,18 @@
+<h4>New Player</h4>
+<%= form_for(@player) do |f| %>
+	
+	<% if @player.errors.any? %>
+		<div id="error_explanation">
+			<ul>
+			<% @player.errors.full_messages.each do |msg| %>
+				<li><%= msg %></li>
+			<% end %>
+			</ul>
+		</div>
+	<% end %>
+
+	<%= f.text_field :name, placeholder: "Player Name" %><br/>
+  <%= f.submit %>
+<% end %>
+
+<h6><%= link_to "Back", players_path %></h6>

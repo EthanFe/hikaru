@@ -29,7 +29,6 @@ class Game < ApplicationRecord
 	def player_2
 	end
 
-
 	# Useful shit
 	# -----------------
 
