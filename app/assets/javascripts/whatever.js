@@ -35,9 +35,11 @@ function clickOnBoard(canvas, event) {
 }
 
 function playMove(data) {
-	console.log("Successful move: " + data["successful_move"])
+	// console.log("Successful move: " + data["successful_move"])
 	if (data["successful_move"] === "true") {
 		reDrawBoard(data["board"])
+		next_move_text = document.getElementById('next_move_text');
+		next_move_text.textContent = "Next Move: " + (data["next_player"] == 0 ? "White" : "Black");
 	}
 }
 
