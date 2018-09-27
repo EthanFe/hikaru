@@ -5,6 +5,7 @@ class Game < ApplicationRecord
 	# -----------------
 	
 	validates :name, presence: true
+	validates :size, presence: true
 	validate :player_ids_are_valid
 	validate :players_are_different
 	
@@ -45,7 +46,7 @@ class Game < ApplicationRecord
 		if space_is_empty(x, y)
 			move = self.moves.create(game_id: self.id, player_id: players[active_player].id, parent_move_id: last_move_id, x: x, y: y)
 			players[active_player].play_move(move)
-			self.update(active_player: self.active_player == 0 ? 1 : 0)
+			self.update(active_player: self.active_player == 0 ? 1 : 0) # switch active player
 			get_board_state_by_groups(move)
 		else
 			false

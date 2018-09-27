@@ -37,7 +37,7 @@ class GamesController < ApplicationController
 		player2 = Player.find_by(name: params[:game][:player_2])
 		player1_id = player1.id if player1
 		player2_id = player2.id if player2
-		@game = Game.new(name: params[:game][:name], player1_id: player1_id, player2_id: player2_id, size: 9, active_player: 1)
+		@game = Game.new(name: params[:game][:name], player1_id: player1_id, player2_id: player2_id, size: params[:game][:size], active_player: 1)
 		
     if @game.save
 			redirect_to game_path(@game)

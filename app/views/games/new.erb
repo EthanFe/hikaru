@@ -1,3 +1,4 @@
+<h4>New Game</h4>
 <%= form_for(@game) do |f| %>
 	
 	<% if @game.errors.any? %>
@@ -13,5 +14,8 @@
 	<%= f.text_field :name, placeholder: "Game Name" %><br/>
 	<%= f.text_field :player_1, placeholder: "Player 1" %><br/>
 	<%= f.text_field :player_2, placeholder: "Player 2" %><br/>
+	<%= f.text_field :size, placeholder: "Game Size" %><br/>
   <%= f.submit %>
 <% end %>
+
+<h6><%= link_to "Back", games_path %></h6>
