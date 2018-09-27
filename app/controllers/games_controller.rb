@@ -9,7 +9,7 @@ class GamesController < ApplicationController
 	end
 
 	def show
-
+		@canvas_size = @game.size * 64
 	end
 
 	def play

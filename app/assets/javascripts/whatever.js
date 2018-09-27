@@ -1,6 +1,4 @@
 document.addEventListener("DOMContentLoaded", function() {
-	// draw();
-	var size = 9;
 	var tile_size = 64;
 
 	var image = null;
@@ -13,10 +11,11 @@ document.addEventListener("DOMContentLoaded", function() {
 
 	var canvas = document.getElementById('canvas');
 	if (canvas.getContext) {
+		size = canvas.width / tile_size
 		var ctx = canvas.getContext('2d');
 		// ctx.drawImage(image, 0, 0, tile_size, tile_size);
-    for (var i = 0; i < 9; i++) {
-      for (var j = 0; j < 9; j++) {
+    for (var i = 0; i < size; i++) {
+      for (var j = 0; j < size; j++) {
         ctx.drawImage(image, j * tile_size, i * tile_size, tile_size, tile_size);
       }
     }
@@ -68,9 +67,10 @@ function reDrawBoard(stones) {
 
 	var canvas = document.getElementById('canvas');
 	if (canvas.getContext) {
+		size = canvas.width / tile_size
 		var ctx = canvas.getContext('2d');
-    for (var i = 0; i < 9; i++) {
-      for (var j = 0; j < 9; j++) {
+    for (var i = 0; i < size; i++) {
+      for (var j = 0; j < size; j++) {
         ctx.drawImage(tile_image, j * tile_size, i * tile_size, tile_size, tile_size);
       }
 		}
@@ -124,16 +124,3 @@ function reDrawBoard(stones) {
 		// }
 	}
 }
-
-// function draw() {
-// 	var canvas = document.getElementById('canvas');
-// 	if (canvas.getContext) {
-// 		var ctx = canvas.getContext('2d');
-
-// 		ctx.fillStyle = 'rgb(200, 0, 0)';
-// 		ctx.fillRect(10, 10, 50, 50);
-
-// 		ctx.fillStyle = 'rgba(0, 0, 200, 0.5)';
-// 		ctx.fillRect(30, 30, 50, 50);
-// 	}
-// }
