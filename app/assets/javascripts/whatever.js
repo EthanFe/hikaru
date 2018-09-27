@@ -37,7 +37,9 @@ function clickOnBoard(canvas, event) {
 
 function playMove(data) {
 	console.log("Successful move: " + data["successful_move"])
-	reDrawBoard(data["board"])
+	if (data["successful_move"] === "true") {
+		reDrawBoard(data["board"])
+	}
 }
 
 function getCursorPosition(canvas, event) {
@@ -72,15 +74,54 @@ function reDrawBoard(stones) {
         ctx.drawImage(tile_image, j * tile_size, i * tile_size, tile_size, tile_size);
       }
 		}
-		
-    for (var color in stones) {
-			stones_of_color = stones[color]
-			for (var j = 0; j < stones_of_color.length; j++) {
-				stone = stones_of_color[j]
-				console.log(stones_of_color[j])
-				ctx.drawImage(stone_images[color], stone[0] * tile_size, stone[1] * tile_size, tile_size, tile_size);
+
+		for (var i in stones) {
+			group = stones[i]
+
+			for (var j in group) {
+				stone = group[j]
+				color = stone[1]
+				x = stone[0][0]
+				y = stone[0][1]
+
+				if (color != null) {
+					ctx.drawImage(stone_images[color], x * tile_size, y * tile_size, tile_size, tile_size);
+				}
 			}
 		}
+
+		// draw debug lines indicating groups
+		for (var i in stones) {
+			group = stones[i]
+
+			ctx.beginPath();
+			ctx.strokeStyle = 'red';
+
+			for (var j in group) {
+				stone = group[j]
+				color = stone[1]
+				x = stone[0][0]
+				y = stone[0][1]
+
+				if (j == 0)
+					ctx.moveTo((x + 0.5) * tile_size, (y + 0.5) * tile_size);
+				else
+					ctx.lineTo((x + 0.5) * tile_size, (y + 0.5) * tile_size);
+			}
+
+			ctx.closePath();
+			ctx.stroke();
+		}
+
+		// non-group related stone drawing code
+		// for (var x = 0; x < stones.length; x++) {
+		// 	for (var y = 0; y < stones[x].length; y++) {
+		// 		color = stones[x][y]
+		// 		if (color != null) {
+		// 			ctx.drawImage(stone_images[color], x * tile_size, y * tile_size, tile_size, tile_size);
+		// 		}
+		// 	}
+		// }
 	}
 }
 

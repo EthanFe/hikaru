@@ -13,10 +13,18 @@ class GamesController < ApplicationController
 	end
 
 	def play
-		if @game.play_move(params[:x], params[:y])
-			render json: {"successful_move": "true", "board": @game.json_game_state}
+		game_state = @game.play_move(params[:x], params[:y])
+
+		if game_state
+			# json_game_state = Array.new(9) { Array.new(9) } # really good not hardcoded code
+			# game_state.each do |position, color|
+			# 	json_game_state[position[0]][position[1]] = color
+			# end
+			json_game_state = game_state
+
+			render json: {"successful_move": "true", "board": json_game_state}
 		else
-			render json: {"successful_move": "false", "board": @game.json_game_state}
+			render json: {"successful_move": "false"}
 		end
 	end
 
