@@ -16,7 +16,7 @@ class GamesController < ApplicationController
 		game_state = @game.play_move(params[:x], params[:y])
 
 		if game_state
-			render json: {"successful_move": "true", "board": game_state, "next_player": @game.active_player}
+			render json: {"successful_move": "true", "board": game_state, "next_player": @game.active_player, "last_move": @game.last_move}
 		else
 			render json: {"successful_move": "false"}
 		end
@@ -42,7 +42,7 @@ class GamesController < ApplicationController
 
 	def board_state
 		game_state = @game.get_board_state_by_groups(@game.last_move)
-		render json: {"board": game_state, "next_player": @game.active_player}
+		render json: {"board": game_state, "next_player": @game.active_player, "last_move": @game.last_move}
 	end
 
 	private

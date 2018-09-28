@@ -58,9 +58,11 @@ class Game < ApplicationRecord
 
 	def get_board_state(move)
 		board = {}
-		move.full_move_chain.each do |past_move|
-			board[past_move.coords] = get_move_color(past_move)
-			board = kill_surrounded_stones(board)
+		if move
+			move.full_move_chain.each do |past_move|
+				board[past_move.coords] = get_move_color(past_move)
+				board = kill_surrounded_stones(board)
+			end
 		end
 		board
 	end
@@ -153,10 +155,6 @@ class Game < ApplicationRecord
 		((position1[0] == position2[0] && (position1[1] == position2[1] - 1 || position1[1] == position2[1] + 1)) || # x is equal, y is +/- 1
 		(position1[1] == position2[1] && (position1[0] == position2[0] - 1 || position1[0] == position2[0] + 1))) # y is equal, x is +/- 1
 	end
-
-	# def current_stones(last_move)
-	# 	all_moves = last_move.full_move_chain
-	# end
 
 	def space_is_empty(x, y)
 		#!last move means if no moves have been played

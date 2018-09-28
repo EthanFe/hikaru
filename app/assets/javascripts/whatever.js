@@ -9,6 +9,20 @@ document.addEventListener("turbolinks:load", function() {
 function updateScreen(data) {
 	reDrawBoard(data["board"])
 	updateNextMoveText(data["next_player"])
+	highlightLastMovePlayed(data["last_move"], data["next_player"])
+}
+
+function highlightLastMovePlayed(last_move, next_player) {
+	var canvas = document.getElementById('canvas');
+	if (canvas.getContext) {
+		var ctx = canvas.getContext('2d');
+		ctx.strokeStyle = next_player == 0 ? "white" : "black";
+		ctx.lineWidth = 5;
+		ctx.beginPath();
+		ctx.arc(last_move["x"] * 64 + 32, last_move["y"] * 64 + 32, 16, 0, Math.PI * 2, true); // Outer circle
+		ctx.moveTo(110, 75);
+		ctx.stroke();
+	}
 }
 
 function clickOnBoard(canvas, event) {
@@ -87,6 +101,7 @@ function reDrawBoard(stones) {
 
 			ctx.beginPath();
 			ctx.strokeStyle = 'red';
+			ctx.lineWidth = 1;
 
 			for (var j in group) {
 				stone = group[j]
