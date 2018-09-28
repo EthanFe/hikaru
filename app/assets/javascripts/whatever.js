@@ -1,10 +1,15 @@
 document.addEventListener("turbolinks:load", function() {
 	getData(document.URL + "/board_state", {})
-  .then(data => reDrawBoard(data["board"])) // JSON-string from `response.json()` call
+  .then(data => updateScreen(data)) // JSON-string from `response.json()` call
   .catch(error => console.error(error));
 
 	canvas.addEventListener('click', () => clickOnBoard(canvas, event), false);
 });
+
+function updateScreen(data) {
+	reDrawBoard(data["board"])
+	updateNextMoveText(data["next_player"])
+}
 
 function clickOnBoard(canvas, event) {
 	clickedSquareIndices = getCursorPosition(canvas, event)
@@ -18,9 +23,7 @@ function clickOnBoard(canvas, event) {
 function playMove(data) {
 	// console.log("Successful move: " + data["successful_move"])
 	if (data["successful_move"] === "true") {
-		reDrawBoard(data["board"])
-		next_move_text = document.getElementById('next_move_text');
-		next_move_text.textContent = "Next Move: " + (data["next_player"] == 0 ? "White" : "Black");
+		updateScreen(data)
 	}
 }
 
@@ -28,6 +31,11 @@ function getCursorPosition(canvas, event) {
 	var x = event.pageX - canvas.offsetLeft,
 			y = event.pageY - canvas.offsetTop;
 	return [Math.floor(x / 64), Math.floor(y / 64)];
+}
+
+function updateNextMoveText(next_player) {
+	next_move_text = document.getElementById('next_move_text');
+	next_move_text.textContent = "Next Move: " + (next_player == 0 ? "White" : "Black");
 }
 
 function reDrawBoard(stones) {
