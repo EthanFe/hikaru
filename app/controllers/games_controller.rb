@@ -13,12 +13,11 @@ class GamesController < ApplicationController
 	end
 
 	def play
-		game_state = @game.play_move(params[:x], params[:y])
-
-		if game_state
-			render json: {"successful_move": "true", "board": game_state, "next_player": @game.active_player, "last_move": @game.last_move}
+		move_result = @game.play_move(params[:x], params[:y])
+		if move_result["result"] == "success"
+			render json: {"move_result": move_result["result"], "board": move_result["state"], "next_player": @game.active_player, "last_move": @game.last_move}
 		else
-			render json: {"successful_move": "false"}
+			render json: {"move_result": move_result["result"]}
 		end
 	end
 

@@ -35,9 +35,13 @@ function clickOnBoard(canvas, event) {
 }
 
 function playMove(data) {
-	// console.log("Successful move: " + data["successful_move"])
-	if (data["successful_move"] === "true") {
+	updateErrorText("")
+	if (data["move_result"] === "success") {
 		updateScreen(data)
+	} else if (data["move_result"] === "suicidal") {
+		updateErrorText("Can't play moves that would kill your own stones")
+	} else if (data["move_result"] === "occupied") {
+
 	}
 }
 
@@ -50,6 +54,11 @@ function getCursorPosition(canvas, event) {
 function updateNextMoveText(next_player) {
 	next_move_text = document.getElementById('next_move_text');
 	next_move_text.textContent = "Next Move: " + (next_player == 0 ? "White" : "Black");
+}
+
+function updateErrorText(error_message) {
+	next_move_text = document.getElementById('error_text');
+	next_move_text.textContent = error_message
 }
 
 function reDrawBoard(stones) {

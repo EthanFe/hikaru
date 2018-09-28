@@ -43,12 +43,18 @@ class Game < ApplicationRecord
 	def play_move(x, y)
 		# players[active_player].id is probably a bit redundant as far as db calls
 		if space_is_empty(x, y)
-			move = self.moves.create(game_id: self.id, player_id: players[active_player].id, parent_move_id: last_move_id, x: x, y: y)
-			players[active_player].play_move(move)
-			self.update(active_player: self.active_player == 0 ? 1 : 0) # switch active player
-			get_board_state_by_groups(move)
+			move = self.moves.build(game_id: self.id, player_id: players[active_player].id, parent_move_id: last_move_id, x: x, y: y)
+			board_state = get_board_state(move)
+			if board_state[[x, y]] == get_move_color(move) # if our placed stone is still alive and well, aka wasnt suicidal
+				move.save
+				players[active_player].play_move(move)
+				self.update(active_player: self.active_player == 0 ? 1 : 0) # switch active player
+				{"result" => "success", "state" => find_groups(board_state)}
+			else
+				{"result" => "suicidal"}
+			end
 		else
-			false
+			{"result" => "occupied"}
 		end
 	end
 
