@@ -114,10 +114,10 @@ class Game < ApplicationRecord
 	end
 
 	def kill_group(group, board)
-		puts "STONES IN GROUP: #{group.length}"
+		# puts "STONES IN GROUP: #{group.length}"
 		group.each do |stone|
 			board.delete([stone[0][0], stone[0][1]])
-			puts "DELETING STONE AT #{stone[0][0]}, #{stone[0][1]}"
+			# puts "DELETING STONE AT #{stone[0][0]}, #{stone[0][1]}"
 		end
 		board
 	end

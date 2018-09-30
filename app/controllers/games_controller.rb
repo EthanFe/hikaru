@@ -12,15 +12,6 @@ class GamesController < ApplicationController
 		@canvas_size = @game.size * 64
 	end
 
-	def play
-		move_result = @game.play_move(params[:x], params[:y])
-		if move_result["result"] == "success"
-			render json: {"move_result": move_result["result"], "board": move_result["state"], "next_player": @game.active_player, "last_move": @game.last_move}
-		else
-			render json: {"move_result": move_result["result"]}
-		end
-	end
-
 	def new
 		@game = Game.new
 	end
@@ -39,30 +30,9 @@ class GamesController < ApplicationController
     end
 	end
 
-	def board_state
-		game_state = @game.get_board_state_by_groups(@game.last_move)
-		render json: {"board": game_state, "next_player": @game.active_player, "last_move": @game.last_move}
-	end
-
 	private
 
 	def find_game_object
 		@game = Game.find(params[:id])
 	end
 end
-=begin
-class SongsController < ApplicationController
-
-	def destroy
-		Song.find(params[:id]).destroy
-
-		redirect_to songs_path
-	end
-
-	private
-
-  def song_params
-    params.require(:song).permit(:title, :released, :release_year, :artist_name, :genre)
-  end
-end
-=end
