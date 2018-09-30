@@ -10,10 +10,6 @@ Rails.application.routes.draw do
   #   end
   # end
 
-  post 'games/:id/play', to: 'tests#play'
-  # get 'games/:id/board_state', to: 'games#board_state'
-
   warp_resources :gamestates
-  warp_resources :tests
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 end

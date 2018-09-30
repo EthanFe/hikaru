@@ -1,15 +1,9 @@
 require 'json'
 require 'pry'
 class GamestatesWarpController < WarpCable::Controller
-	before_action :find_game_object, only: [:show, :play, :board_state]
+	before_action :find_game_object, only: :play
 
 	def play(params)
-		# Move.after_create do
-		# 	game_state = @game.get_board_state_by_groups(@game.last_move)
-		# 	response = {"board": game_state, "next_player": @game.active_player, "last_move": @game.last_move}.to_json
-		# 	yield response
-		# end
-		
 		if params[:x] && params[:y]
 			move_result = @game.play_move(params[:x], params[:y])
 			if move_result["result"] == "success"
@@ -24,9 +18,13 @@ class GamestatesWarpController < WarpCable::Controller
 			response = {"board": game_state, "next_player": @game.active_player, "last_move": @game.last_move}.to_json
 			yield response
 		end
-	end
 
-	def board_state(params)
+		Game.after_commit do
+			@game = Game.find(params[:id])
+			game_state = @game.get_board_state_by_groups(@game.last_move)
+			response = {"board": game_state, "next_player": @game.active_player, "last_move": @game.last_move}.to_json
+			yield response
+		end
 	end
 
 	private

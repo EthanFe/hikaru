@@ -1,16 +1,13 @@
+window.game_id = parseInt(document.URL.split("/games/")[1])
 document.addEventListener("turbolinks:load", function() {
 	// getData(document.URL + "/board_state", {})
   // .then(data => updateScreen(data)) // JSON-string from `response.json()` call
 	// .catch(error => console.error(error));
 	
-	subscribe('Gamestates', 'play', {id: 15}, games => {
+	subscribe('Gamestates', 'play', {id: window.game_id}, games => {
 		updateScreen(JSON.parse(games))
 		console.log("Update screen!")
 	})
-
-	// subscribe('Tests', 'example', {}, tests => {
-  //   console.log(tests)
-	// })
 
 	canvas.addEventListener('click', () => clickOnBoard(canvas, event), false);
 });
@@ -37,18 +34,14 @@ function highlightLastMovePlayed(last_move, next_player) {
 function clickOnBoard(canvas, event) {
 	clickedSquareIndices = getCursorPosition(canvas, event)
 	console.log(clickedSquareIndices);
-
-
-
-	// subscribe('Tests', 'example', {}, tests => {
-	// 	console.log('Received?')
-	// })
-	trigger('Gamestates', 'play', {id: 15, x: clickedSquareIndices[0], y: clickedSquareIndices[1]}, tests => {
-		console.log('Received?')
-	})
+	
 	// postData(document.URL + "/play", {x: clickedSquareIndices[0], y: clickedSquareIndices[1]})
   // .then(data => playMove(data)) // JSON-string from `response.json()` call
   // .catch(error => console.error(error));
+
+	trigger('Gamestates', 'play', {id: window.game_id, x: clickedSquareIndices[0], y: clickedSquareIndices[1]}, tests => {
+		console.log('Received?')
+	})
 }
 
 function playMove(data) {
