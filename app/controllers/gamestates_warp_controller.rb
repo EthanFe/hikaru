@@ -1,5 +1,3 @@
-require 'json'
-require 'pry'
 class GamestatesWarpController < WarpCable::Controller
 	before_action :find_game_object, only: :play
 

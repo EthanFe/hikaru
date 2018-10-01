@@ -1,5 +1,3 @@
-require 'json'
-require 'pry'
 class GamesController < ApplicationController
 	skip_before_action :verify_authenticity_token # real secure boys
 	before_action :find_game_object, only: [:show, :play, :board_state]
