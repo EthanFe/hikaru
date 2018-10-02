@@ -39,9 +39,7 @@ function clickOnBoard(canvas, event) {
 	console.log(clickedSquareIndices);
 
 	game_id = parseInt(document.URL.split("/games/")[1])
-	trigger('Gamestates', 'play', {id: game_id, x: clickedSquareIndices[0], y: clickedSquareIndices[1]}, tests => {
-		console.log('Received?')
-	})
+	trigger('Gamestates', 'play', {id: game_id, x: clickedSquareIndices[0], y: clickedSquareIndices[1]})
 }
 
 function getCursorPosition(canvas, event) {
