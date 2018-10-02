@@ -1,12 +1,20 @@
-<h2><%= @game.name %></h2>
-<h4><%= link_to @game.players[0].name, @game.players[0] %> (B) vs <%= link_to @game.players[1].name, @game.players[1] %> (W)</h4>
-<h4 id=next_move_text></h4>
-<h4 id=error_text></h4>
+<div id=main-content>
+  <div id=center-column>
+    <h2><%= @game.name %></h2>
+    <h4><%= link_to @game.players[0].name, @game.players[0] %> (B) vs <%= link_to @game.players[1].name, @game.players[1] %> (W)</h4>
+    <h4 id=next_move_text></h4>
+    <h4 id=error_text></h4>
 
-<canvas id="canvas" width="<%= @canvas_size %>" height="<%= @canvas_size %>" onclick=getCursorPosition></canvas>
+    <canvas id="canvas" width="<%= @canvas_size %>" height="<%= @canvas_size %>" onclick=getCursorPosition></canvas>
 
-<h6><%= link_to "Back", games_path %></h6>
+    <h6><%= link_to "Back", games_path %></h6>
 
-<%= image_tag "empty_tile.png", id: "goban_tile_image", class: "invisible" %>
-<%= image_tag "tile_with_white.png", id: "goban_tile_with_white_image", class: "invisible" %>
-<%= image_tag "tile_with_black.png", id: "goban_tile_with_black_image", class: "invisible" %>
+    <%= image_tag "empty_tile.png", id: "goban_tile_image", class: "invisible" %>
+    <%= image_tag "tile_with_white.png", id: "goban_tile_with_white_image", class: "invisible" %>
+    <%= image_tag "tile_with_black.png", id: "goban_tile_with_black_image", class: "invisible" %>
+  </div>
+  <div id=right-column>
+    <ol id=history_list>
+    </ol>
+  </div>
+</div>
