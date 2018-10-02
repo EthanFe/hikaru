@@ -9,9 +9,16 @@ document.addEventListener("turbolinks:load", function() {
 });
 
 function updateScreen(data) {
-	reDrawBoard(data["board"])
-	updateNextMoveText(data["next_player"])
-	highlightLastMovePlayed(data["last_move"], data["next_player"])
+	updateErrorText("")
+	if (data["move_result"] === undefined || data["move_result"] === "success") { // no move was played, or move was successful
+		reDrawBoard(data["board"])
+		updateNextMoveText(data["next_player"])
+		highlightLastMovePlayed(data["last_move"], data["next_player"])
+	} else if (data["move_result"] === "suicidal") {
+		updateErrorText("Can't play moves that would kill your own stones")
+	} else if (data["move_result"] === "occupied") {
+
+	}
 }
 
 function highlightLastMovePlayed(last_move, next_player) {
@@ -35,17 +42,6 @@ function clickOnBoard(canvas, event) {
 	trigger('Gamestates', 'play', {id: game_id, x: clickedSquareIndices[0], y: clickedSquareIndices[1]}, tests => {
 		console.log('Received?')
 	})
-}
-
-function playMove(data) {
-	updateErrorText("")
-	if (data["move_result"] === "success") {
-		updateScreen(data)
-	} else if (data["move_result"] === "suicidal") {
-		updateErrorText("Can't play moves that would kill your own stones")
-	} else if (data["move_result"] === "occupied") {
-
-	}
 }
 
 function getCursorPosition(canvas, event) {
