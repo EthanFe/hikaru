@@ -1,29 +1,25 @@
 class GamestatesWarpController < WarpCable::Controller
-	before_action :find_game_object, only: :play
+	before_action :find_game_object, only: [:play, :game_state]
 
 	def play(params)
-		if params[:x] && params[:y]
-			move_result = @game.play_move(params[:x], params[:y])
-			if move_result["result"] == "success"
-				game_state = move_result["state"]
-				response = GamestatesWarpController.gamestate_json_packet(game_state, @game, move_result["result"])
-				yield response
-			else
-				response = {"move_result": move_result["result"]}.to_json
-				yield response
-			end
-		else
-			game_state = @game.get_board_state_by_groups(@game.last_move)
-			response = GamestatesWarpController.gamestate_json_packet(game_state, @game)
-			yield response
-		end
+		move_result = @game.play_move(params[:x], params[:y])
+		game_state = move_result["state"]
+		response = GamestatesWarpController.gamestate_json_packet(game_state, @game, move_result["result"])
+		yield response
+	end
 
+	def game_state(params)
 		Game.after_commit do
 			@game = Game.find(params[:id])
 			game_state = @game.get_board_state_by_groups(@game.last_move)
 			response = GamestatesWarpController.gamestate_json_packet(game_state, @game)
 			yield response
 		end
+
+		# also respond immediately with the current state
+		game_state = @game.get_board_state_by_groups(@game.last_move)
+		response = GamestatesWarpController.gamestate_json_packet(game_state, @game)
+		yield response
 	end
 
 	def self.gamestate_json_packet(game_state, game, move_result = nil)

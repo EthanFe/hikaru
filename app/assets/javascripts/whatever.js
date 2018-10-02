@@ -1,9 +1,9 @@
 //Subscribe and Trigger are now methods of api 
-const api = WarpCable("ws://hikaru-no-websocket.herokuapp.com:3000/cable")
+const api = WarpCable("ws://localhost:3000/cable")
 
 document.addEventListener("turbolinks:load", function() {
 	game_id = parseInt(document.URL.split("/games/")[1])
-	api.subscribe('Gamestates', 'play', {id: game_id}, data => {
+	api.subscribe('Gamestates', 'game_state', {id: game_id}, data => {
 		updateScreen(JSON.parse(data))
 		console.log("Update screen!")
 	})
@@ -16,13 +16,19 @@ function updateScreen(data) {
 	if (data["move_result"] === null || data["move_result"] === "success") { // no move was played, or move was successful
 		reDrawBoard(data["board"])
 		updateNextMoveText(data["next_player"])
-		highlightLastMovePlayed(data["last_move"], data["next_player"])
+		if (data["last_move"] != null)
+			highlightLastMovePlayed(data["last_move"], data["next_player"])
+		// displayHistoryList(data["history"])
 	} else if (data["move_result"] === "suicidal") {
 		updateErrorText("Can't play moves that would kill your own stones")
 	} else if (data["move_result"] === "occupied") {
 
 	}
 }
+
+// function displayHistoryList(history) {
+
+// }
 
 function highlightLastMovePlayed(last_move, next_player) {
 	var canvas = document.getElementById('canvas');
@@ -42,7 +48,10 @@ function clickOnBoard(canvas, event) {
 	console.log(clickedSquareIndices);
 
 	game_id = parseInt(document.URL.split("/games/")[1])
-	api.trigger('Gamestates', 'play', {id: game_id, x: clickedSquareIndices[0], y: clickedSquareIndices[1]})
+	api.trigger('Gamestates', 'play', {id: game_id, x: clickedSquareIndices[0], y: clickedSquareIndices[1]}, data => {
+		console.log("Played move and got response")
+		updateScreen(JSON.parse(data))
+	})
 }
 
 function getCursorPosition(canvas, event) {
