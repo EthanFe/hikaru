@@ -1,5 +1,5 @@
 //Subscribe and Trigger are now methods of api 
-const api = WarpCable("ws://hikaru-no-websocket.herokuapp.com/cable")
+const api = WarpCable("ws://hikaru-no-websocket.herokuapp.com:3000/cable")
 
 document.addEventListener("turbolinks:load", function() {
 	game_id = parseInt(document.URL.split("/games/")[1])
