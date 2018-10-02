@@ -1,6 +1,9 @@
+//Subscribe and Trigger are now methods of api 
+const api = WarpCable("ws://hikaru-no-websocket.herokuapp.com/cable")
+
 document.addEventListener("turbolinks:load", function() {
 	game_id = parseInt(document.URL.split("/games/")[1])
-	subscribe('Gamestates', 'play', {id: game_id}, data => {
+	api.subscribe('Gamestates', 'play', {id: game_id}, data => {
 		updateScreen(JSON.parse(data))
 		console.log("Update screen!")
 	})
@@ -39,7 +42,7 @@ function clickOnBoard(canvas, event) {
 	console.log(clickedSquareIndices);
 
 	game_id = parseInt(document.URL.split("/games/")[1])
-	trigger('Gamestates', 'play', {id: game_id, x: clickedSquareIndices[0], y: clickedSquareIndices[1]})
+	api.trigger('Gamestates', 'play', {id: game_id, x: clickedSquareIndices[0], y: clickedSquareIndices[1]})
 }
 
 function getCursorPosition(canvas, event) {
