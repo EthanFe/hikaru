@@ -10,7 +10,7 @@ document.addEventListener("turbolinks:load", function() {
 
 function updateScreen(data) {
 	updateErrorText("")
-	if (data["move_result"] === undefined || data["move_result"] === "success") { // no move was played, or move was successful
+	if (data["move_result"] === null || data["move_result"] === "success") { // no move was played, or move was successful
 		reDrawBoard(data["board"])
 		updateNextMoveText(data["next_player"])
 		highlightLastMovePlayed(data["last_move"], data["next_player"])
