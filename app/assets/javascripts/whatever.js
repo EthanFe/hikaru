@@ -20,7 +20,7 @@ function updateScreen(data) {
 		updateNextMoveText(data["next_player"])
 		if (data["last_move"] != null)
 			highlightLastMovePlayed(data["last_move"], data["next_player"])
-		// displayHistoryList(data["history"])
+		displayHistoryList(data["history"])
 	} else if (data["move_result"] === "suicidal") {
 		updateErrorText("Can't play moves that would kill your own stones")
 	} else if (data["move_result"] === "occupied") {
@@ -28,9 +28,13 @@ function updateScreen(data) {
 	}
 }
 
-// function displayHistoryList(history) {
-
-// }
+function displayHistoryList(history) {
+	historyList = document.getElementById('history_list')
+	historyList.innerHTML = ""
+	for (const move of history) {
+		historyList.innerHTML += `<li>${move.color} played at ${move.x}, ${move.y}</li>`
+	}
+}
 
 function highlightLastMovePlayed(last_move, next_player) {
 	var canvas = document.getElementById('canvas');

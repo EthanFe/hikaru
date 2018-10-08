@@ -174,4 +174,10 @@ class Game < ApplicationRecord
 	def last_move_id
 		last_move ? last_move.id : nil
 	end
+
+	def history(move)
+		move.full_move_chain.map do |move|
+			{x: move.x, y: move.y, color: get_move_color(move)}
+		end
+	end
 end
