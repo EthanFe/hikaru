@@ -29,10 +29,12 @@ function updateScreen(data) {
 }
 
 function displayHistoryList(history) {
-	historyList = document.getElementById('history_list')
-	historyList.innerHTML = ""
-	for (const move of history) {
-		historyList.innerHTML += `<li>${move.color} played at ${move.x}, ${move.y}</li>`
+	if (history != null) {
+		historyList = document.getElementById('history_list')
+		historyList.innerHTML = ""
+		for (const move of history) {
+			historyList.innerHTML += `<li>${move.color} played at ${move.x}, ${move.y}</li>`
+		}
 	}
 }
 

@@ -26,7 +26,7 @@ class GamestatesWarpController < WarpCable::Controller
 		{	"board": game_state,
 			"next_player": game.active_player, 
 			"last_move": game.last_move,
-			"history": game.history(game.last_move),
+			"history": game.last_move ? game.history(game.last_move) : nil,
 			"move_result": move_result
 		}.to_json
 	end
