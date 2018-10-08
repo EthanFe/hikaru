@@ -1,5 +1,5 @@
 //Subscribe and Trigger are now methods of api 
-const api = WarpCable("ws://localhost:3000/cable")
+const api = WarpCable("wss://19c1a3d3.ngrok.io/cable")
 
 document.addEventListener("turbolinks:load", function() {
 	game_id = parseInt(document.URL.split("/games/")[1])
