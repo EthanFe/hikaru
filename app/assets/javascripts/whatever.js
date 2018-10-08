@@ -33,9 +33,23 @@ function displayHistoryList(history) {
 		historyList = document.getElementById('history_list')
 		historyList.innerHTML = ""
 		for (const move of history) {
-			historyList.innerHTML += `<li>${move.color} played at ${move.x}, ${move.y}</li>`
+			const imgSource = "/assets/tile_with_white-404735ee1942c50f532ae101578a0a0d37e5851e8533fa92218e94282817ad77.png"
+			historyList.innerHTML += `<li><img width=32 height=32 src=${imgSource} onclick="getHistoryForMove(${move.id})"/>${move.color} played at ${move.x}, ${move.y}</li>`
 		}
 	}
+}
+	
+// function pageURL() {
+// 	return [location.protocol, '//', location.host, location.pathname].join('');
+// }
+
+function getHistoryForMove(move_id) {
+	// const path = `${pageURL() + "/move/" + move_id}">`
+
+	api.trigger('Gamestates', 'historic_game_state', {id: game_id, move_id: move_id}, data => {
+		console.log("Got historic game state")
+		updateScreen(JSON.parse(data))
+	})
 }
 
 function highlightLastMovePlayed(last_move, next_player) {

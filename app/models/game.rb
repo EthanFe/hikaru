@@ -177,7 +177,15 @@ class Game < ApplicationRecord
 
 	def history(move)
 		move.full_move_chain.map do |move|
-			{x: move.x, y: move.y, color: get_move_color(move)}
+			{x: move.x, y: move.y, color: get_move_color(move), id: move.id}
+		end
+	end
+
+	def active_player_at_move(move)
+		if move.player == self.players[0]
+			1
+		elsif move.player == self.players[1]
+			0
 		end
 	end
 end
