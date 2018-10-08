@@ -1,5 +1,7 @@
 //Subscribe and Trigger are now methods of api 
-const api = WarpCable("wss://19c1a3d3.ngrok.io/cable")
+// const api = WarpCable("wss://19c1a3d3.ngrok.io/cable")
+const api = WarpCable("ws:localhost:3000/cable")
+const TILE_SIZE = 64
 
 document.addEventListener("turbolinks:load", function() {
 	game_id = parseInt(document.URL.split("/games/")[1])
@@ -37,7 +39,7 @@ function highlightLastMovePlayed(last_move, next_player) {
 		ctx.strokeStyle = next_player == 0 ? "white" : "black";
 		ctx.lineWidth = 5;
 		ctx.beginPath();
-		ctx.arc(last_move["x"] * 64 + 32, last_move["y"] * 64 + 32, 16, 0, Math.PI * 2, true); // Outer circle
+		ctx.arc(last_move["x"] * TILE_SIZE + TILE_SIZE / 2, last_move["y"] * TILE_SIZE + TILE_SIZE / 2, TILE_SIZE / 4, 0, Math.PI * 2, true); // Outer circle
 		ctx.moveTo(110, 75);
 		ctx.stroke();
 	}
@@ -55,9 +57,14 @@ function clickOnBoard(canvas, event) {
 }
 
 function getCursorPosition(canvas, event) {
-	var x = event.pageX - canvas.offsetLeft,
-			y = event.pageY - canvas.offsetTop;
-	return [Math.floor(x / 64), Math.floor(y / 64)];
+	const x = event.pageX - canvas.offsetLeft,
+				y = event.pageY - canvas.offsetTop;
+	
+	return [Math.floor(x / realTileSize(canvas)), Math.floor(y / realTileSize(canvas))];
+}
+
+function realTileSize(canvas) {
+	return (canvas.offsetWidth / canvas.width) * TILE_SIZE
 }
 
 function updateNextMoveText(next_player) {
@@ -71,8 +78,6 @@ function updateErrorText(error_message) {
 }
 
 function reDrawBoard(stones) {
-	var tile_size = 64;
-
 	var tile_image = null;
 	var stone_images = []
 	images_collection = document.images
@@ -90,11 +95,11 @@ function reDrawBoard(stones) {
 
 	var canvas = document.getElementById('canvas');
 	if (canvas.getContext) {
-		size = canvas.width / tile_size
+		size = canvas.width / TILE_SIZE
 		var ctx = canvas.getContext('2d');
     for (var i = 0; i < size; i++) {
       for (var j = 0; j < size; j++) {
-        ctx.drawImage(tile_image, j * tile_size, i * tile_size, tile_size, tile_size);
+        ctx.drawImage(tile_image, j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE);
       }
 		}
 
@@ -108,7 +113,7 @@ function reDrawBoard(stones) {
 				y = stone[0][1]
 
 				if (color != null) {
-					ctx.drawImage(stone_images[color], x * tile_size, y * tile_size, tile_size, tile_size);
+					ctx.drawImage(stone_images[color], x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
 				}
 			}
 		}
@@ -128,9 +133,9 @@ function reDrawBoard(stones) {
 				y = stone[0][1]
 
 				if (j == 0)
-					ctx.moveTo((x + 0.5) * tile_size, (y + 0.5) * tile_size);
+					ctx.moveTo((x + 0.5) * TILE_SIZE, (y + 0.5) * TILE_SIZE);
 				else
-					ctx.lineTo((x + 0.5) * tile_size, (y + 0.5) * tile_size);
+					ctx.lineTo((x + 0.5) * TILE_SIZE, (y + 0.5) * TILE_SIZE);
 			}
 
 			ctx.closePath();
