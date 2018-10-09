@@ -1,55 +1,73 @@
 //Subscribe and Trigger are now methods of api 
-// const api = WarpCable("wss://19c1a3d3.ngrok.io/cable")
+// const api = WarpCable("wss://ec010beb.ngrok.io/cable")
 const api = WarpCable("ws:localhost:3000/cable")
 const TILE_SIZE = 64
+let HISTORY_LIST = []
+let currentlyDisplayedMove = null
 
 document.addEventListener("turbolinks:load", function() {
 	game_id = parseInt(document.URL.split("/games/")[1])
-	api.subscribe('Gamestates', 'game_state', {id: game_id}, data => {
-		updateScreen(JSON.parse(data))
-		console.log("Update screen!")
+
+	// get gamestate so far
+	api.trigger('Gamestates', 'full_game_state', {id: game_id}, data => {
+		console.log("Got full game state up to now")
+		HISTORY_LIST = data
+		updateScreen(data)
+	})
+
+	// subscribe to state updates from now on
+	api.subscribe('Gamestates', 'latest_game_state', {id: game_id}, data => {
+		console.log("Got latest game state update from new move")
+		addNewMove(data)
+		updateScreen(HISTORY_LIST)
 	})
 
 	canvas.addEventListener('click', () => clickOnBoard(canvas, event), false);
 });
 
-function updateScreen(data) {
-	updateErrorText("")
-	if (data["move_result"] === null || data["move_result"] === "success") { // no move was played, or move was successful
-		reDrawBoard(data["board"])
-		updateNextMoveText(data["next_player"])
-		if (data["last_move"] != null)
-			highlightLastMovePlayed(data["last_move"], data["next_player"])
-		displayHistoryList(data["history"])
-	} else if (data["move_result"] === "suicidal") {
-		updateErrorText("Can't play moves that would kill your own stones")
-	} else if (data["move_result"] === "occupied") {
-
-	}
+function addNewMove(data) {
+	HISTORY_LIST.push(data)
 }
 
-function displayHistoryList(history) {
-	if (history != null) {
-		historyList = document.getElementById('history_list')
-		historyList.innerHTML = ""
-		for (const move of history) {
+function updateScreen(data) {
+	latest_state = data[data.length - 1]
+	updateErrorText("")
+	// if no moves have been played, display a default state
+	if (latest_state === undefined) {
+		latest_state = {
+			"board": [],
+			"next_player": 1,
+			"last_move": null
+		}
+	}
+	reDrawBoard(latest_state["board"])
+	updateNextMoveText(latest_state["next_player"])
+	if (latest_state["last_move"] != null)
+		highlightLastMovePlayed(latest_state["last_move"], latest_state["next_player"])
+
+	currentlyDisplayedMove = HISTORY_LIST.indexOf(latest_state)
+	console.log(currentlyDisplayedMove)
+
+	displayHistoryList()
+}
+
+function displayHistoryList() {
+	if (HISTORY_LIST.length > 0) {
+		historyListElement = document.getElementById('history_list')
+		historyListElement.innerHTML = ""
+		for (const [index, gameState] of HISTORY_LIST.entries()) {
 			const imgSource = "/assets/tile_with_white-404735ee1942c50f532ae101578a0a0d37e5851e8533fa92218e94282817ad77.png"
-			historyList.innerHTML += `<li><img width=32 height=32 src=${imgSource} onclick="getHistoryForMove(${move.id})"/>${move.color} played at ${move.x}, ${move.y}</li>`
+			let move = gameState.last_move
+			historyListElement.innerHTML += `<li ${currentlyDisplayedMove == index ? "class=active_move" : ""}><img width=32 height=32 src=${imgSource} onclick="displayStateFromMove(${index})"/>${move.color} played at ${move.x}, ${move.y}</li>`
 		}
 	}
 }
-	
-// function pageURL() {
-// 	return [location.protocol, '//', location.host, location.pathname].join('');
-// }
 
-function getHistoryForMove(move_id) {
-	// const path = `${pageURL() + "/move/" + move_id}">`
-
-	api.trigger('Gamestates', 'historic_game_state', {id: game_id, move_id: move_id}, data => {
-		console.log("Got historic game state")
-		updateScreen(JSON.parse(data))
-	})
+function displayStateFromMove(move_id) {
+	console.log("Displaying historic state for move id " + move_id)
+	// put the old game state in a single-entry array so updateScreen thinks its a list of moves
+	// good code.
+	updateScreen([HISTORY_LIST[move_id]])
 }
 
 function highlightLastMovePlayed(last_move, next_player) {
@@ -70,9 +88,10 @@ function clickOnBoard(canvas, event) {
 	console.log(clickedSquareIndices);
 
 	game_id = parseInt(document.URL.split("/games/")[1])
+	// send request to the server to play the move
 	api.trigger('Gamestates', 'play', {id: game_id, x: clickedSquareIndices[0], y: clickedSquareIndices[1]}, data => {
 		console.log("Played move and got response")
-		updateScreen(JSON.parse(data))
+		updateErrorText(data)
 	})
 }
 
@@ -92,9 +111,13 @@ function updateNextMoveText(next_player) {
 	next_move_text.textContent = "Next Move: " + (next_player == 0 ? "White" : "Black");
 }
 
-function updateErrorText(error_message) {
+function updateErrorText(move_result) {
 	next_move_text = document.getElementById('error_text');
-	next_move_text.textContent = error_message
+	if (move_result === "suicidal") {
+		next_move_text.textContent = "Can't play moves that would kill your own stones"
+	} else {
+		next_move_text.textContent = ""
+	}
 }
 
 function reDrawBoard(stones) {
@@ -173,3 +196,23 @@ function reDrawBoard(stones) {
 		// }
 	}
 }
+
+// code for scrolling around history with arrow keys
+var keyMap = {
+	39: 'right',
+	37: 'left',
+	38: 'up',
+	40: 'down'
+}
+
+function keydown() {
+	console.log("keydown")
+	var key = keyMap[event.keyCode]
+	if (key == 'right' && HISTORY_LIST.length > currentlyDisplayedMove + 1) {
+		displayStateFromMove(currentlyDisplayedMove + 1)
+	} else if (key == 'left' && currentlyDisplayedMove > 0) {
+		displayStateFromMove(currentlyDisplayedMove - 1)
+	}
+}
+
+window.addEventListener("keydown", keydown, false)

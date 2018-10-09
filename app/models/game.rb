@@ -176,9 +176,25 @@ class Game < ApplicationRecord
 	end
 
 	def history(move)
-		move.full_move_chain.map do |move|
-			{x: move.x, y: move.y, color: get_move_color(move), id: move.id}
+		if move
+			move.full_move_chain.map do |move|
+				gamestate_at_move(move)
+			end
+		else
+			[]
 		end
+	end
+
+	def gamestate_at_move(move)
+		state = { "board": get_board_state_by_groups(move),
+							"next_player": active_player_at_move(move), 
+							"last_move": move	}
+			# theres probably a cleaner way to do this but w/e
+			# just trimming down data & getting the move color so client has an easier time
+		state[:last_move] = {x: state[:last_move].x,
+												 y: state[:last_move].y,
+												 color: get_move_color(state[:last_move])}
+		state
 	end
 
 	def active_player_at_move(move)
