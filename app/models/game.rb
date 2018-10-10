@@ -44,7 +44,7 @@ class Game < ApplicationRecord
 		# players[active_player].id is probably a bit redundant as far as db calls
 		if space_is_empty(x, y)
 			move = self.moves.build(game_id: self.id, player_id: players[active_player].id, parent_move_id: last_move_id, x: x, y: y)
-			board_state = get_board_state(move)
+			board_state = (get_board_state(move))[:board]
 			if board_state[[x, y]] == get_move_color(move) # if our placed stone is still alive and well, aka wasnt suicidal
 				move.save
 				players[active_player].play_move(move)
@@ -59,18 +59,20 @@ class Game < ApplicationRecord
 	end
 
 	def get_board_state_by_groups(move)
-		find_groups(get_board_state(move))
+		find_groups(get_board_state(move)[:board])
 	end
 
 	def get_board_state(move)
 		board = {}
 		if move
+			killed_stones = []
 			move.full_move_chain.each do |past_move|
 				board[past_move.coords] = get_move_color(past_move)
-				board = kill_surrounded_stones(board)
+				killed_stones = find_surrounded_stones(board)
+				board = kill_stones(killed_stones, board)
 			end
 		end
-		board
+		{board: board, killed_stones: killed_stones}
 	end
 
 	def get_move_color(move)
@@ -81,15 +83,16 @@ class Game < ApplicationRecord
 		end
 	end
 
-	def kill_surrounded_stones(board)
+	def find_surrounded_stones(board)
+		surrounded_stones = []
 		groups = find_groups(board)
 		groups.each do |group|
 			# don't let the group of the most recently placed stone die before other groups are killed
 			if breaths(group, board) == 0 && !group.include?([last_move.x, last_move.y])
-				board = kill_group(group, board)
+				surrounded_stones.concat(group)
 			end
 		end
-		board
+		surrounded_stones
 	end
 
 	def breaths(group, board)
@@ -113,9 +116,9 @@ class Game < ApplicationRecord
 		coords[0] >= 0 && coords[0] < self.size && coords[1] >= 0 && coords[1] < self.size
 	end
 
-	def kill_group(group, board)
+	def kill_stones(stones, board)
 		# puts "STONES IN GROUP: #{group.length}"
-		group.each do |stone|
+		stones.each do |stone|
 			board.delete([stone[0][0], stone[0][1]])
 			# puts "DELETING STONE AT #{stone[0][0]}, #{stone[0][1]}"
 		end
@@ -164,7 +167,7 @@ class Game < ApplicationRecord
 
 	def space_is_empty(x, y)
 		#!last move means if no moves have been played
-		!last_move || get_board_state(last_move)[[x, y]] == nil
+		!last_move || ((get_board_state(last_move))[:board])[[x, y]] == nil
 	end
 
 	def last_move
@@ -188,9 +191,10 @@ class Game < ApplicationRecord
 	def gamestate_at_move(move)
 		state = { "board": get_board_state_by_groups(move),
 							"next_player": active_player_at_move(move), 
-							"last_move": move	}
-			# theres probably a cleaner way to do this but w/e
-			# just trimming down data & getting the move color so client has an easier time
+							"last_move": move,
+							"killed_stones": get_board_state(move)[:killed_stones]	}
+		# theres probably a cleaner way to do this but w/e
+		# just trimming down data & getting the move color so client has an easier time
 		state[:last_move] = {x: state[:last_move].x,
 												 y: state[:last_move].y,
 												 color: get_move_color(state[:last_move])}

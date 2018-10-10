@@ -41,6 +41,7 @@ function updateScreen(data) {
 		}
 	}
 	reDrawBoard(latest_state["board"])
+	displayKilledStones(latest_state["killed_stones"])
 	updateNextMoveText(latest_state["next_player"])
 	if (latest_state["last_move"] != null)
 		highlightLastMovePlayed(latest_state["last_move"], latest_state["next_player"])
@@ -58,7 +59,8 @@ function displayHistoryList() {
 		for (const [index, gameState] of HISTORY_LIST.entries()) {
 			const imgSource = "/assets/tile_with_white-404735ee1942c50f532ae101578a0a0d37e5851e8533fa92218e94282817ad77.png"
 			let move = gameState.last_move
-			historyListElement.innerHTML += `<li ${currentlyDisplayedMove == index ? "class=active_move" : ""}><img width=32 height=32 src=${imgSource} onclick="displayStateFromMove(${index})"/>${move.color} played at ${move.x}, ${move.y}</li>`
+			let killedStonesText = gameState.killed_stones.length > 0 ? `, capturing ${gameState.killed_stones.length} stones` : ""
+			historyListElement.innerHTML += `<li ${currentlyDisplayedMove == index ? "class=active_move" : ""}><img width=32 height=32 src=${imgSource} onclick="displayStateFromMove(${index})"/>${move.color} played at ${move.x}, ${move.y}${killedStonesText}</li>`
 		}
 	}
 }
@@ -194,6 +196,41 @@ function reDrawBoard(stones) {
 		// 		}
 		// 	}
 		// }
+	}
+}
+
+function displayKilledStones(stones) {
+	// help i just copypasted this and its very dumb
+	var tile_image = null;
+	var stone_images = []
+	images_collection = document.images
+	for(var i = 0; i < images_collection.length; i++) {
+		if(images_collection[i].id == "goban_tile_image") {
+			tile_image = images_collection[i]
+		}
+		if(images_collection[i].id == "goban_tile_with_white_image") {
+			stone_images["white"] = images_collection[i]
+		}
+		if(images_collection[i].id == "goban_tile_with_black_image") {
+			stone_images["black"] = images_collection[i]
+		}
+	}
+
+	var canvas = document.getElementById('canvas');
+	if (canvas.getContext) {
+		var ctx = canvas.getContext('2d');
+		for (var stone of stones) {
+			color = stone[1]
+			x = stone[0][0]
+			y = stone[0][1]
+
+			if (color != null) {
+				ctx.save()
+				ctx.globalAlpha = 0.4
+				ctx.drawImage(stone_images[color], x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+				ctx.restore()
+			}
+		}
 	}
 }
 
