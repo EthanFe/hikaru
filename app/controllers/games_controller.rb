@@ -3,7 +3,9 @@ class GamesController < ApplicationController
 	before_action :find_game_object, only: [:show, :play, :board_state]
 
 	def index
-		@games = Game.all
+		@games = Game.all.sort_by do |game|
+			game.created_at
+		end
 	end
 
 	def show
