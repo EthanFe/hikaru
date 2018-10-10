@@ -54,15 +54,21 @@ function updateScreen(data) {
 
 function displayHistoryList() {
 	if (HISTORY_LIST.length > 0) {
+		stonesCaptured = {"white": 0, "black": 0}
 		historyListElement = document.getElementById('history_list')
 		historyListElement.innerHTML = ""
 		for (const [index, gameState] of HISTORY_LIST.entries()) {
+			stonesCaptured[gameState.last_move.color] += gameState.killed_stones.length
 			const imgSource = "/assets/tile_with_white-404735ee1942c50f532ae101578a0a0d37e5851e8533fa92218e94282817ad77.png"
 			let move = gameState.last_move
 			let killedStonesText = gameState.killed_stones.length > 0 ? `, capturing ${gameState.killed_stones.length} stones` : ""
 			historyListElement.innerHTML += `<li ${currentlyDisplayedMove == index ? "class=active_move" : ""}><img width=32 height=32 src=${imgSource} onclick="displayStateFromMove(${index})"/>${move.color} played at ${move.x}, ${move.y}${killedStonesText}</li>`
 		}
 	}
+
+	// why is this code here? i dont know look UI design is hard
+	next_move_text = document.getElementById('next_move_text');
+	next_move_text.innerHTML = "Stones captured: " + stonesCaptured.white + " vs " + stonesCaptured.black + "<br>" + next_move_text.textContent
 }
 
 function displayStateFromMove(move_id) {
