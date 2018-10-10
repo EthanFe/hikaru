@@ -10,6 +10,14 @@
   </head>
 
   <body>
+    <% if logged_in_player = Player.find_by(id: session['player_id']) %>
+      <h4>Currently logged in as <%= logged_in_player.name %></h4>
+      <h6>
+        <%= form_tag ({controller: 'players', action: 'logout', method: 'post'}) do %>
+          <input type=submit value='logout'>
+        <% end %>
+      </h6>
+    <% end %>
     <%= yield %>
   </body>
 </html>

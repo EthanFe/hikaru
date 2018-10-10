@@ -1,5 +1,10 @@
 <h4>New Player</h4>
-<%= form_for(@player) do |f| %>
+
+<% if flash[:notice] %>
+  <div class="notice"><%= flash[:notice] %></div>
+<% end %>
+
+<%= form_with model: @player do |form| %>
 	
 	<% if @player.errors.any? %>
 		<div id="error_explanation">
@@ -11,8 +16,10 @@
 		</div>
 	<% end %>
 
-	<%= f.text_field :name, placeholder: "Player Name" %><br/>
-  <%= f.submit %>
+  <div><%= form.text_field :name, placeholder: "Player Name" %></div>
+  <div><%= form.password_field :password, placeholder: "Password" %></div>
+  <div><%= form.password_field :password_confirmation, placeholder: "Confirm Password" %></div>
+  <%= form.submit %>
 <% end %>
 
 <h6><%= link_to "Back", players_path %></h6>

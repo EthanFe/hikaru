@@ -21,15 +21,6 @@ class GamestatesWarpController < WarpCable::Controller
 		end
 	end
 
-	def self.gamestate_json_packet(game_state, game, move_result = nil, last_move = game.last_move)
-		{	"board": game_state,
-			"next_player": game.active_player_at_move(last_move), 
-			"last_move": last_move,
-			"history": game.last_move ? game.history(game.last_move) : nil,
-			"move_result": move_result
-		}.to_json
-	end
-
 	private
 
 	def find_game_object

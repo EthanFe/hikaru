@@ -1,0 +1,15 @@
+<h1> Player Login </h1> 
+
+<% if flash[:notice] %>
+  <div class="notice"><%= flash[:notice] %></div>
+<% end %>
+
+<%= form_tag login_path do %>
+  <div><%= text_field_tag :username, nil, placeholder: "Username" %></div>
+  <div><%= password_field_tag :password, nil, placeholder: "Password" %></div>
+  <p>
+  <div><%= submit_tag "Login" %></div>
+<% end %>
+
+<br/>
+<h4><%= link_to "New Player Registration", new_player_path %></h4>
