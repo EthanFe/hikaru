@@ -38,13 +38,6 @@ function addNewMove(data) {
 	HISTORY_LIST.push(data)
 }
 
-function displayStateFromMove(move_id) {
-	console.log("Displaying historic state for move id " + move_id)
-	// put the old game state in a single-entry array so updateScreen thinks its a list of moves
-	// good code.
-	updateScreen([HISTORY_LIST[move_id]])
-}
-
 function clickOnBoard(canvas, event) {
 	clickedSquareIndices = getCursorPosition(canvas, event)
 	console.log(clickedSquareIndices);

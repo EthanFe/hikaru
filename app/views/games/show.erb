@@ -2,6 +2,8 @@
   <div id=center-column>
     <h2><%= @game.name %></h2>
     <h4><%= link_to @game.players[0].name, @game.players[0] %> (B) vs <%= link_to @game.players[1].name, @game.players[1] %> (W)</h4>
+    <h5 id=stones_captured_text>
+    
     <h4 id=next_move_text></h4>
     <h4 id=error_text></h4>
 

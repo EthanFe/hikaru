@@ -2,8 +2,12 @@ class GamestatesWarpController < WarpCable::Controller
 	before_action :find_game_object, only: [:play, :full_game_state]
 
 	def play(params)
-		move_result = @game.play_move(params[:x], params[:y])
-		yield move_result["result"]
+		if params[:x] && params[:y]
+			move_result = @game.play_move(params[:x], params[:y])
+			yield move_result["result"]
+		else
+			yield @game.pass_turn()["result"]
+		end
 	end
 
 	# including all history, for fresh page loads

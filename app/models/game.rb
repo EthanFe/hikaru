@@ -67,9 +67,12 @@ class Game < ApplicationRecord
 		if move
 			killed_stones = []
 			move.full_move_chain.each do |past_move|
-				board[past_move.coords] = get_move_color(past_move)
-				killed_stones = find_surrounded_stones(board)
-				board = kill_stones(killed_stones, board)
+				# only move to board state if it represents a stone and not a pass
+				unless past_move.is_pass
+					board[past_move.coords] = get_move_color(past_move)
+					killed_stones = find_surrounded_stones(board)
+					board = kill_stones(killed_stones, board)
+				end
 			end
 		end
 		{board: board, killed_stones: killed_stones}
@@ -207,5 +210,13 @@ class Game < ApplicationRecord
 		elsif move.player == self.players[1]
 			0
 		end
+	end
+
+	def pass_turn
+			# build a new 'move' to represent passing
+			move = self.moves.create(game_id: self.id, player_id: players[active_player].id, parent_move_id: last_move_id, x: nil, y: nil)
+			players[active_player].play_move(move)
+			self.update(active_player: self.active_player == 0 ? 1 : 0) # switch active player
+			{"result" => "turn_passed"}
 	end
 end

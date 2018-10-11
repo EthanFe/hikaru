@@ -18,4 +18,8 @@ class Move < ApplicationRecord
 	def coords
 		[x, y]
 	end
+
+	def is_pass
+		coords == [nil, nil]
+	end
 end

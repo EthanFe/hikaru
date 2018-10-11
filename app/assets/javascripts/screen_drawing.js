@@ -1,8 +1,13 @@
 const DEBUG_GROUP_LINES = false
 
-function updateScreen(data) {
-	latest_state = data[data.length - 1]
-	updateErrorText("")
+function updateScreen(data, move_id = null) {
+  // just find the latest move if no historic move was specified
+  if (move_id == null)
+    move_id = data.length - 1
+
+  // find the latest renderable state (non-pass), counting backwards from the specified move id
+  latest_state = getLatestState(data, move_id)
+
 	// if no moves have been played, display a default state
 	if (latest_state === undefined) {
 		latest_state = {
@@ -10,17 +15,38 @@ function updateScreen(data) {
 			"next_player": 1,
 			"last_move": null
 		}
-	}
-	reDrawBoard(latest_state["board"])
+  }
+  
+  updateErrorText("")
+  reDrawBoard(latest_state["board"])
 	displayKilledStones(latest_state["killed_stones"])
-	updateNextMoveText(latest_state["next_player"])
 	if (latest_state["last_move"] != null)
 		highlightLastMovePlayed(latest_state["last_move"], latest_state["next_player"])
 
-	currentlyDisplayedMove = HISTORY_LIST.indexOf(latest_state)
-	console.log(currentlyDisplayedMove)
+  // the actual latest move, including passes
+  const latest_move = data[move_id]
+	currentlyDisplayedMove = HISTORY_LIST.indexOf(latest_move)
+  console.log(currentlyDisplayedMove)
+  
+  // using latest_move because the only state that changes from a pass is the active player
+	updateNextMoveText(latest_move["next_player"])
 
 	displayHistoryList()
+}
+
+// search back through moves until one is found that has coordinates (isn't a pass)
+function getLatestState(game_states, move_id) {
+  let latest_state = undefined
+  let offset = game_states.length - 1 - move_id
+  while (latest_state === undefined && offset < game_states.length) {
+    offset++
+    const state = game_states[game_states.length - offset]
+    if (moveIsNotPass(state.last_move)) {
+      latest_state = state
+      break
+    }
+  }
+  return latest_state
 }
 
 function updateNextMoveText(next_player) {
@@ -135,7 +161,7 @@ function displayKilledStones(stones) {
 
 	var canvas = document.getElementById('canvas');
 	if (canvas.getContext) {
-		var ctx = canvas.getContext('2d');
+    var ctx = canvas.getContext('2d');
 		for (var stone of stones) {
 			color = stone[1]
 			x = stone[0][0]
@@ -172,13 +198,27 @@ function displayHistoryList() {
 		for (const [index, gameState] of HISTORY_LIST.entries()) {
 			stonesCaptured[gameState.last_move.color] += gameState.killed_stones.length
 			const imgSource = "/assets/tile_with_white-404735ee1942c50f532ae101578a0a0d37e5851e8533fa92218e94282817ad77.png"
-			let move = gameState.last_move
-			let killedStonesText = gameState.killed_stones.length > 0 ? `, capturing ${gameState.killed_stones.length} stones` : ""
-			historyListElement.innerHTML += `<li ${currentlyDisplayedMove == index ? "class=active_move" : ""}><img width=32 height=32 src=${imgSource} onclick="displayStateFromMove(${index})"/>${move.color} played at ${move.x}, ${move.y}${killedStonesText}</li>`
+      let move = gameState.last_move
+      var movePlayedText = moveIsNotPass(move) ? `${move.color} played at ${move.x}, ${move.y}` : `${move.color} passed`
+      let killedStonesText = gameState.killed_stones.length > 0 ? `, capturing ${gameState.killed_stones.length} stones` : ""
+      historyListElement.innerHTML += `<li ${currentlyDisplayedMove == index ? "class=active_move" : ""}><img width=32 height=32 src=${imgSource} onclick="displayStateFromMove(${index})"/>${movePlayedText}${killedStonesText}</li>`
 		}
 	}
 
-	// why is this code here? i dont know look UI design is hard
-	next_move_text = document.getElementById('next_move_text');
-	next_move_text.innerHTML = "Stones captured: " + stonesCaptured.white + " vs " + stonesCaptured.black + "<br>" + next_move_text.textContent
+  // just here because we counted up the stones here and WHATEVER
+  displayStonesCapturedText(stonesCaptured)
+}
+
+function displayStonesCapturedText(stonesCaptured) {
+	stones_captured_text = document.getElementById('stones_captured_text');
+	stones_captured_text.textContent = "Stones captured: " + stonesCaptured.white + " vs " + stonesCaptured.black
+}
+
+function displayStateFromMove(move_id) {
+	console.log("Displaying historic state for move id " + move_id)
+	updateScreen(HISTORY_LIST, move_id)
+}
+
+function moveIsNotPass(move) {
+  return move.x != null && move.y != null
 }
