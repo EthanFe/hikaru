@@ -70,7 +70,7 @@ class Game < ApplicationRecord
 				# only move to board state if it represents a stone and not a pass
 				if !past_move.is_pass
 					board[past_move.coords] = get_move_color(past_move)
-					killed_stones = find_surrounded_stones(board)
+					killed_stones = find_surrounded_stones(board, past_move)
 					board = kill_stones(killed_stones, board)
 				else
 					killed_stones = []
@@ -88,14 +88,23 @@ class Game < ApplicationRecord
 		end
 	end
 
-	def find_surrounded_stones(board)
+	def find_surrounded_stones(board, last_move)
 		surrounded_stones = []
 		groups = find_groups(board)
+		last_move_group = nil
 		groups.each do |group|
 			# don't let the group of the most recently placed stone die before other groups are killed
-			if breaths(group, board) == 0 && !group.include?([last_move.x, last_move.y])
-				surrounded_stones.concat(group)
+			if last_move.is_in_group(group)
+				last_move_group = group
+			else
+				if breaths(group, board) == 0
+					surrounded_stones.concat(group)
+				end
 			end
+		end
+		# after all other groups have been checked, if nothing was killed, check to see if placed stone would immediately die
+		if surrounded_stones.length == 0 && last_move_group && breaths(last_move_group, board) == 0
+			surrounded_stones.concat(last_move_group)
 		end
 		surrounded_stones
 	end
@@ -224,5 +233,9 @@ class Game < ApplicationRecord
 			else
 				{"result" => "game_ended"}
 			end
+	end
+
+	def has_ended
+		
 	end
 end

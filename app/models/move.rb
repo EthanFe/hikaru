@@ -22,4 +22,10 @@ class Move < ApplicationRecord
 	def is_pass
 		coords == [nil, nil]
 	end
+
+	def is_in_group(group)
+		group.any? do |stone|
+			stone[0] == self.coords
+		end
+	end
 end

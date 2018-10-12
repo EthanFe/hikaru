@@ -1,4 +1,4 @@
-const DEBUG_GROUP_LINES = false
+const DEBUG_GROUP_LINES = true
 
 function updateScreen(data, move_id = null) {
   // just find the latest move if no historic move was specified
