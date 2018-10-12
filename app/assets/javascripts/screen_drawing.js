@@ -13,23 +13,32 @@ function updateScreen(data, move_id = null) {
 		latest_state = {
 			"board": [],
 			"next_player": 1,
-			"last_move": null
+			"last_move": null,
+			"killed_stones": []
 		}
   }
-  
+	
   updateErrorText("")
   reDrawBoard(latest_state["board"])
 	displayKilledStones(latest_state["killed_stones"])
 	if (latest_state["last_move"] != null)
 		highlightLastMovePlayed(latest_state["last_move"], latest_state["next_player"])
 
-  // the actual latest move, including passes
-  const latest_move = data[move_id]
-	currentlyDisplayedMove = HISTORY_LIST.indexOf(latest_move)
-  console.log(currentlyDisplayedMove)
-  
-  // using latest_move because the only state that changes from a pass is the active player
-	updateNextMoveText(latest_move["next_player"])
+	// the actual latest move, including passes
+	// if no moves have been played yet dont do dis
+	let latest_move
+	if (move_id !== -1) {
+		latest_move = data[move_id]
+		currentlyDisplayedMove = HISTORY_LIST.indexOf(latest_move)
+		console.log(currentlyDisplayedMove)
+	}
+	
+	// using latest_move because the only state that changes from a pass is the active player
+	// unless there's no latest move because no moves have been played yet. good code.
+	if (data.length > 0)
+		updateNextMoveText(latest_move["next_player"])
+	else
+		updateNextMoveText(latest_state["next_player"])
 
 	displayHistoryList()
 }
@@ -203,10 +212,10 @@ function displayHistoryList() {
       let killedStonesText = gameState.killed_stones.length > 0 ? `, capturing ${gameState.killed_stones.length} stones` : ""
       historyListElement.innerHTML += `<li ${currentlyDisplayedMove == index ? "class=active_move" : ""}><img width=32 height=32 src=${imgSource} onclick="displayStateFromMove(${index})"/>${movePlayedText}${killedStonesText}</li>`
 		}
-	}
 
-  // just here because we counted up the stones here and WHATEVER
-  displayStonesCapturedText(stonesCaptured)
+		// just here because we counted up the stones here and WHATEVER
+		displayStonesCapturedText(stonesCaptured)
+	}
 }
 
 function displayStonesCapturedText(stonesCaptured) {

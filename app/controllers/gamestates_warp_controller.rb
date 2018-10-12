@@ -12,7 +12,9 @@ class GamestatesWarpController < WarpCable::Controller
 
 	# including all history, for fresh page loads
 	def full_game_state(params)
-		yield @game.history(@game.last_move)
+		game_status = @game.has_ended ? "scoring" : "active"
+		response = {"game_status": game_status, "history": @game.history(@game.last_move)}
+		yield response
 	end
 
 	# including only state resulting from latest move, for after a move is played

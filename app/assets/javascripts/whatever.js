@@ -10,9 +10,12 @@ document.addEventListener("turbolinks:load", function() {
 
 	// get gamestate so far
 	api.trigger('Gamestates', 'full_game_state', {id: game_id}, data => {
+		if (data.game_status != "active")
+			debugger
+		move_history = data.history
 		console.log("Got full game state up to now")
-		HISTORY_LIST = data
-		updateScreen(data)
+		HISTORY_LIST = move_history
+		updateScreen(move_history)
 	})
 
 	// subscribe to state updates from now on

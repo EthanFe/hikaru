@@ -228,7 +228,7 @@ class Game < ApplicationRecord
 			move = self.moves.create(game_id: self.id, player_id: players[active_player].id, parent_move_id: last_move_id, x: nil, y: nil)
 			players[active_player].play_move(move)
 			self.update(active_player: self.active_player == 0 ? 1 : 0) # switch active player
-			if !(Move.find_by(id: move.parent_move_id).is_pass)
+			if !(move.parent_move.is_pass)
 				{"result" => "turn_passed"}
 			else
 				{"result" => "game_ended"}
@@ -236,6 +236,6 @@ class Game < ApplicationRecord
 	end
 
 	def has_ended
-		
+		last_move && last_move.parent_move && last_move.is_pass && last_move.parent_move.is_pass
 	end
 end
