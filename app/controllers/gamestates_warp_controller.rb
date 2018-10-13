@@ -12,8 +12,10 @@ class GamestatesWarpController < WarpCable::Controller
 
 	def toggle_aliveness(params)
 		endgame_group = @game.group_for_coords(params[:x], params[:y])
-		endgame_group.update(alive: !endgame_group.alive)
-		yield endgame_group.alive
+		if endgame_group
+			endgame_group.toggle_aliveness
+			yield endgame_group.alive
+		end
 	end
 
 	# including all history, for fresh page loads

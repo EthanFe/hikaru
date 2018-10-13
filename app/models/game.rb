@@ -271,6 +271,10 @@ class Game < ApplicationRecord
 			end
 		end
 		
-		endgame_group = self.groups.find_by(x: group.first[0][0], y: group.first[0][1])
+		if group
+			self.groups.find_by(x: group.first[0][0], y: group.first[0][1])
+		else
+			false
+		end
 	end
 end
