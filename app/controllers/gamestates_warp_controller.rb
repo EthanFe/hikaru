@@ -1,5 +1,5 @@
 class GamestatesWarpController < WarpCable::Controller
-	before_action :find_game_object, only: [:play, :full_game_state]
+	before_action :find_game_object, only: [:play, :full_game_state, :toggle_aliveness]
 
 	def play(params)
 		if params[:x] && params[:y]
@@ -8,6 +8,12 @@ class GamestatesWarpController < WarpCable::Controller
 		else
 			yield @game.pass_turn()["result"]
 		end
+	end
+
+	def toggle_aliveness(params)
+		endgame_group = @game.group_for_coords(params[:x], params[:y])
+		endgame_group.update(alive: !endgame_group.alive)
+		yield endgame_group.alive
 	end
 
 	# including all history, for fresh page loads
@@ -22,10 +28,22 @@ class GamestatesWarpController < WarpCable::Controller
 
 	# including only state resulting from latest move, for after a move is played
 	def latest_game_state(params)
-		Game.after_commit do
+		Move.after_create do
+			if Move.most_recent_move.game_id == params[:id]
+				@game = Game.find_by(id: params[:id])
+				if @game
+					yield game_state = @game.gamestate_at_move(@game.last_move)
+				end
+			end
+		end
+	end
+
+	# update when endgame groups aliveness are toggled
+	def latest_endgame_state(params)
+		Group.after_update do
 			@game = Game.find_by(id: params[:id])
 			if @game
-				yield game_state = @game.gamestate_at_move(@game.last_move)
+				yield @game.endgame_groups
 			end
 		end
 	end

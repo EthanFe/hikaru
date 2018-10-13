@@ -54,7 +54,7 @@ function updateScreen(data, move_id = null, groups = null) {
 	
 	// game hasn't ended, endgame groups don't exist
 	if (groups == null) {
-		// using latest_move because the only state that changes from a pass is the active player
+		// using latest_move instead of latest_state here because the only state that changes from a pass is the active player
 		// unless there's no latest move because no moves have been played yet. good code.
 		if (data.length > 0)
 			updateNextMoveText(latest_move["next_player"])
@@ -62,6 +62,7 @@ function updateScreen(data, move_id = null, groups = null) {
 			updateNextMoveText(latest_state["next_player"])
 
 		reDrawBoard(latest_state["board"])
+		displayKilledStones(latest_state["killed_stones"])
 	} else { // game has ended
 		// this code is horrible. why is this not a function. why is updatenextmovetext not more flexible. oh well.
 		next_move_text = document.getElementById('next_move_text');
@@ -70,7 +71,6 @@ function updateScreen(data, move_id = null, groups = null) {
   	reDrawBoard(groups)
 	}
 
-	displayKilledStones(latest_state["killed_stones"])
 	if (latest_state["last_move"] != null)
 		highlightLastMovePlayed(latest_state["last_move"], latest_state["next_player"])
 

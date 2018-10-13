@@ -4,14 +4,14 @@ const api = WarpCable("ws:localhost:3000/cable")
 const TILE_SIZE = 64
 let HISTORY_LIST = []
 let currentlyDisplayedMove = null
-// let game_status = null
+let game_status = null
 
 document.addEventListener("turbolinks:load", function() {
 	game_id = parseInt(document.URL.split("/games/")[1])
 
 	// get gamestate so far
 	api.trigger('Gamestates', 'full_game_state', {id: game_id}, data => {
-		// game_status = data.game_status
+		game_status = data.game_status
 		move_history = data.history
 		console.log("Got full game state up to now")
 		HISTORY_LIST = move_history
@@ -23,6 +23,15 @@ document.addEventListener("turbolinks:load", function() {
 		console.log("Got latest game state update from new move")
 		addNewMove(data)
 		updateScreen(HISTORY_LIST)
+	})
+
+	// subscribe to endgame group aliveness updates
+	api.subscribe('Gamestates', 'latest_endgame_state', {id: game_id}, data => {
+		if (game_status == "scoring")
+		{
+			console.log("Got group aliveness update")
+			updateScreen(HISTORY_LIST, null, data)
+		}
 	})
 
 	canvas.addEventListener('click', () => clickOnBoard(canvas, event), false);
@@ -46,11 +55,18 @@ function clickOnBoard(canvas, event) {
 	console.log(clickedSquareIndices);
 
 	game_id = parseInt(document.URL.split("/games/")[1])
-	// send request to the server to play the move
-	api.trigger('Gamestates', 'play', {id: game_id, x: clickedSquareIndices[0], y: clickedSquareIndices[1]}, data => {
-		console.log("Played move and got response")
-		updateErrorText(data)
-	})
+
+	if (game_status == "scoring") {
+		api.trigger('Gamestates', 'toggle_aliveness', {id: game_id, x: clickedSquareIndices[0], y: clickedSquareIndices[1]}, data => {
+			console.log("Toggled aliveness of group to " + data)
+		})
+	} else {
+		// send request to the server to play the move
+		api.trigger('Gamestates', 'play', {id: game_id, x: clickedSquareIndices[0], y: clickedSquareIndices[1]}, data => {
+			console.log("Played move and got response")
+			updateErrorText(data)
+		})
+	}
 }
 
 function getCursorPosition(canvas, event) {

@@ -28,4 +28,8 @@ class Move < ApplicationRecord
 			stone[0] == self.coords
 		end
 	end
+
+	def self.most_recent_move
+		self.all.sort_by { |move| move.created_at }.last
+	end
 end

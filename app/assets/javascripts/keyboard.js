@@ -7,7 +7,6 @@ var keyMap = {
 }
 
 function keydown() {
-	console.log("keydown")
 	var key = keyMap[event.keyCode]
 	if (key == 'right' && HISTORY_LIST.length > currentlyDisplayedMove + 1) {
 		displayStateFromMove(currentlyDisplayedMove + 1)

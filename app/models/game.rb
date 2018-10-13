@@ -262,4 +262,15 @@ class Game < ApplicationRecord
 			}
 		end
 	end
+
+	def group_for_coords(x, y)
+		full_groups = gamestate_at_move(last_move)[:board]
+		group = full_groups.find do |full_group|
+			full_group.any? do |stone|
+				stone[0] == [x, y]
+			end
+		end
+		
+		endgame_group = self.groups.find_by(x: group.first[0][0], y: group.first[0][1])
+	end
 end
