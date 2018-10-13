@@ -4,18 +4,18 @@ const api = WarpCable("ws:localhost:3000/cable")
 const TILE_SIZE = 64
 let HISTORY_LIST = []
 let currentlyDisplayedMove = null
+// let game_status = null
 
 document.addEventListener("turbolinks:load", function() {
 	game_id = parseInt(document.URL.split("/games/")[1])
 
 	// get gamestate so far
 	api.trigger('Gamestates', 'full_game_state', {id: game_id}, data => {
-		if (data.game_status != "active")
-			debugger
+		// game_status = data.game_status
 		move_history = data.history
 		console.log("Got full game state up to now")
 		HISTORY_LIST = move_history
-		updateScreen(move_history)
+		updateScreen(move_history, null, data.groups)
 	})
 
 	// subscribe to state updates from now on

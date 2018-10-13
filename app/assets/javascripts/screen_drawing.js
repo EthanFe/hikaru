@@ -1,12 +1,40 @@
 const DEBUG_GROUP_LINES = true
 
-function updateScreen(data, move_id = null) {
+let tile_images
+document.addEventListener("turbolinks:load", function() {
+	tile_images = getTileImages()
+})
+
+function getTileImages() {
+	images = {}
+	let tile_image = null;
+	let stone_images = []
+	const images_collection = document.images
+	for(var i = 0; i < images_collection.length; i++) {
+		if(images_collection[i].id == "goban_tile_image") {
+			images["blank"] = images_collection[i]
+		}
+		if(images_collection[i].id == "goban_tile_with_white_image") {
+			images["white"] = images_collection[i]
+		}
+		if(images_collection[i].id == "goban_tile_with_black_image") {
+			images["black"] = images_collection[i]
+		}
+	}
+	return images
+}
+
+function updateScreen(data, move_id = null, groups = null) {
   // just find the latest move if no historic move was specified
   if (move_id == null)
     move_id = data.length - 1
 
   // find the latest renderable state (non-pass), counting backwards from the specified move id
   latest_state = getLatestState(data, move_id)
+
+	// the actual latest move, including passes
+	// if no moves have been played yet dont do dis
+	let latest_move
 
 	// if no moves have been played, display a default state
 	if (latest_state === undefined) {
@@ -16,29 +44,35 @@ function updateScreen(data, move_id = null) {
 			"last_move": null,
 			"killed_stones": []
 		}
-  }
-	
-  updateErrorText("")
-  reDrawBoard(latest_state["board"])
-	displayKilledStones(latest_state["killed_stones"])
-	if (latest_state["last_move"] != null)
-		highlightLastMovePlayed(latest_state["last_move"], latest_state["next_player"])
-
-	// the actual latest move, including passes
-	// if no moves have been played yet dont do dis
-	let latest_move
-	if (move_id !== -1) {
+  } else {
 		latest_move = data[move_id]
 		currentlyDisplayedMove = HISTORY_LIST.indexOf(latest_move)
 		console.log(currentlyDisplayedMove)
 	}
 	
-	// using latest_move because the only state that changes from a pass is the active player
-	// unless there's no latest move because no moves have been played yet. good code.
-	if (data.length > 0)
-		updateNextMoveText(latest_move["next_player"])
-	else
-		updateNextMoveText(latest_state["next_player"])
+	updateErrorText("")
+	
+	// game hasn't ended, endgame groups don't exist
+	if (groups == null) {
+		// using latest_move because the only state that changes from a pass is the active player
+		// unless there's no latest move because no moves have been played yet. good code.
+		if (data.length > 0)
+			updateNextMoveText(latest_move["next_player"])
+		else
+			updateNextMoveText(latest_state["next_player"])
+
+		reDrawBoard(latest_state["board"])
+	} else { // game has ended
+		// this code is horrible. why is this not a function. why is updatenextmovetext not more flexible. oh well.
+		next_move_text = document.getElementById('next_move_text');
+		next_move_text.textContent = "Now Scoring -- Click on groups to toggle living status"
+
+  	reDrawBoard(groups)
+	}
+
+	displayKilledStones(latest_state["killed_stones"])
+	if (latest_state["last_move"] != null)
+		highlightLastMovePlayed(latest_state["last_move"], latest_state["next_player"])
 
 	displayHistoryList()
 }
@@ -73,101 +107,86 @@ function updateErrorText(move_result) {
 }
 
 function reDrawBoard(stones) {
-	var tile_image = null;
-	var stone_images = []
-	images_collection = document.images
-	for(var i = 0; i < images_collection.length; i++) {
-  	if(images_collection[i].id == "goban_tile_image") {
-			tile_image = images_collection[i]
-		}
-  	if(images_collection[i].id == "goban_tile_with_white_image") {
-			stone_images["white"] = images_collection[i]
-		}
-  	if(images_collection[i].id == "goban_tile_with_black_image") {
-			stone_images["black"] = images_collection[i]
-		}
-	}
-
 	var canvas = document.getElementById('canvas');
 	if (canvas.getContext) {
 		size = canvas.width / TILE_SIZE
 		var ctx = canvas.getContext('2d');
     for (var i = 0; i < size; i++) {
       for (var j = 0; j < size; j++) {
-        ctx.drawImage(tile_image, j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+        ctx.drawImage(tile_images["blank"], j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE);
       }
 		}
 
-		for (var i in stones) {
-			group = stones[i]
+		for (let group of stones) {
+			// if endgame groups (with alive status)
+			if (group.stones != undefined)
+				for (let stone of group.stones) {
+					color = stone[1]
+					x = stone[0][0]
+					y = stone[0][1]
 
-			for (var j in group) {
-				stone = group[j]
-				color = stone[1]
-				x = stone[0][0]
-				y = stone[0][1]
+					if (color != null) {
+						if (group.alive)
+							ctx.drawImage(tile_images[color], x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE)
+						else
+							drawImageTransparent(ctx, tile_images[color], x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0.3)
+					}
+				}
+			else // if normal groups (during game)
+			{
+				for (let stone of group) {
+					color = stone[1]
+					x = stone[0][0]
+					y = stone[0][1]
 
-				if (color != null) {
-					ctx.drawImage(stone_images[color], x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+					if (color != null) {
+						ctx.drawImage(tile_images[color], x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE)
+					}
 				}
 			}
 		}
 
     // draw debug lines indicating groups
-    if (DEBUG_GROUP_LINES) {
-      for (var i in stones) {
-        group = stones[i]
+    if (DEBUG_GROUP_LINES)
+			drawGroupConnectionLines(stones, ctx)
+	}
+}
 
-        ctx.beginPath();
-        ctx.strokeStyle = 'red';
-        ctx.lineWidth = 1;
+function drawImageTransparent(context, image, x, y, width, height, opacity) {
+	context.save()
+	context.globalAlpha = opacity
+	context.drawImage(image, x, y, width, height);
+	context.restore()
+}
 
-        for (var j in group) {
-          stone = group[j]
-          color = stone[1]
-          x = stone[0][0]
-          y = stone[0][1]
+function drawGroupConnectionLines(stones, ctx) {
+	for (let group of stones) {
+		ctx.beginPath();
+		ctx.strokeStyle = 'red';
+		ctx.lineWidth = 1;
 
-          if (j == 0)
-            ctx.moveTo((x + 0.5) * TILE_SIZE, (y + 0.5) * TILE_SIZE);
-          else
-            ctx.lineTo((x + 0.5) * TILE_SIZE, (y + 0.5) * TILE_SIZE);
-        }
+		// ignore aliveness value even if groups are endgame groups
+		if (group.stones != undefined)
+			group = group.stones
 
-        ctx.closePath();
-        ctx.stroke();
-      }
-    }
+		for (var j in group) {
+			stone = group[j]
+			color = stone[1]
+			x = stone[0][0]
+			y = stone[0][1]
 
-		// non-group related stone drawing code
-		// for (var x = 0; x < stones.length; x++) {
-		// 	for (var y = 0; y < stones[x].length; y++) {
-		// 		color = stones[x][y]
-		// 		if (color != null) {
-		// 			ctx.drawImage(stone_images[color], x * tile_size, y * tile_size, tile_size, tile_size);
-		// 		}
-		// 	}
-		// }
+			if (j == 0)
+				ctx.moveTo((x + 0.5) * TILE_SIZE, (y + 0.5) * TILE_SIZE);
+			else
+				ctx.lineTo((x + 0.5) * TILE_SIZE, (y + 0.5) * TILE_SIZE);
+		}
+
+		ctx.closePath();
+		ctx.stroke();
 	}
 }
 
 function displayKilledStones(stones) {
-	// help i just copypasted this and its very dumb
-	var tile_image = null;
-	var stone_images = []
-	images_collection = document.images
-	for(var i = 0; i < images_collection.length; i++) {
-		if(images_collection[i].id == "goban_tile_image") {
-			tile_image = images_collection[i]
-		}
-		if(images_collection[i].id == "goban_tile_with_white_image") {
-			stone_images["white"] = images_collection[i]
-		}
-		if(images_collection[i].id == "goban_tile_with_black_image") {
-			stone_images["black"] = images_collection[i]
-		}
-	}
-
 	var canvas = document.getElementById('canvas');
 	if (canvas.getContext) {
     var ctx = canvas.getContext('2d');
@@ -177,10 +196,7 @@ function displayKilledStones(stones) {
 			y = stone[0][1]
 
 			if (color != null) {
-				ctx.save()
-				ctx.globalAlpha = 0.4
-				ctx.drawImage(stone_images[color], x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-				ctx.restore()
+				drawImageTransparent(ctx, tile_images[color], x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0.4)
 			}
 		}
 	}

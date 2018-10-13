@@ -1,5 +1,6 @@
 class Game < ApplicationRecord
 	has_many :moves
+	has_many :groups
 
 	# Creation form/validation shit
 	# -----------------
@@ -231,11 +232,34 @@ class Game < ApplicationRecord
 			if !(move.parent_move.is_pass)
 				{"result" => "turn_passed"}
 			else
+				end_game
 				{"result" => "game_ended"}
 			end
 	end
 
+	def end_game
+		groups = gamestate_at_move(last_move)[:board]
+		groups.each do |group|
+			self.groups.create(alive: true, x: group.first[0][0], y: group.first[0][1])
+		end
+	end
+
 	def has_ended
 		last_move && last_move.parent_move && last_move.is_pass && last_move.parent_move.is_pass
+	end
+
+	# find the actual groups given the persisted 'groups' (single coordinates) from the database
+	def endgame_groups
+		full_groups = gamestate_at_move(last_move)[:board]
+		self.groups.map do |group|
+			{
+				stones: full_groups.find do |full_group|
+					full_group.any? do |stone|
+						stone[0] == [group.x, group.y]
+					end
+				end,
+				alive: group.alive
+			}
+		end
 	end
 end

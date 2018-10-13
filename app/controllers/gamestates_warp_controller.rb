@@ -14,6 +14,9 @@ class GamestatesWarpController < WarpCable::Controller
 	def full_game_state(params)
 		game_status = @game.has_ended ? "scoring" : "active"
 		response = {"game_status": game_status, "history": @game.history(@game.last_move)}
+		if @game.has_ended
+			response["groups"] = @game.endgame_groups
+		end
 		yield response
 	end
 
