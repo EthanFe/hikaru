@@ -1,5 +1,5 @@
 //Subscribe and Trigger are now methods of api 
-// const api = WarpCable("wss://ec010beb.ngrok.io/cable")
+// const api = WarpCable("wss://e600e2e3.ngrok.io/cable")
 const api = WarpCable("ws:localhost:3000/cable")
 const TILE_SIZE = 64
 let HISTORY_LIST = []

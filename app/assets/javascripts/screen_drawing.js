@@ -119,20 +119,21 @@ function reDrawBoard(stones) {
 
 		for (let group of stones) {
 			// if endgame groups (with alive status)
-			if (group.stones != undefined)
+			if (group.stones != undefined) {
 				for (let stone of group.stones) {
 					color = stone[1]
 					x = stone[0][0]
 					y = stone[0][1]
 
 					if (color != null) {
-						if (group.alive)
+						if (group.alive) {
 							ctx.drawImage(tile_images[color], x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE)
-						else
+						} else {
 							drawImageTransparent(ctx, tile_images[color], x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0.3)
+						}
 					}
 				}
-			else // if normal groups (during game)
+			} else // if normal groups (during game)
 			{
 				for (let stone of group) {
 					color = stone[1]

@@ -240,7 +240,7 @@ class Game < ApplicationRecord
 	def end_game
 		groups = gamestate_at_move(last_move)[:board]
 		groups.each do |group|
-			self.groups.create(alive: true, x: group.first[0][0], y: group.first[0][1])
+			self.groups.find_or_create_by(alive: true, x: group.first[0][0], y: group.first[0][1])
 		end
 	end
 

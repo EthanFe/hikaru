@@ -6,6 +6,7 @@ class GamestatesWarpController < WarpCable::Controller
 			move_result = @game.play_move(params[:x], params[:y])
 			yield move_result["result"]
 		else
+			# if no coords are provided, turn was passed
 			yield @game.pass_turn()["result"]
 		end
 	end
@@ -34,7 +35,7 @@ class GamestatesWarpController < WarpCable::Controller
 			if Move.most_recent_move.game_id == params[:id]
 				@game = Game.find_by(id: params[:id])
 				if @game
-					yield game_state = @game.gamestate_at_move(@game.last_move)
+					yield @game.gamestate_at_move(@game.last_move)
 				end
 			end
 		end
