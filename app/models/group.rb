@@ -4,4 +4,8 @@ class Group < ApplicationRecord
 	def toggle_aliveness
 		self.update(alive: !self.alive)
 	end
+
+	def self.most_recent_group
+		self.all.sort_by { |group| group.updated_at }.last
+	end
 end

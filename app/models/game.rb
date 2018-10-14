@@ -242,6 +242,8 @@ class Game < ApplicationRecord
 		groups.each do |group|
 			self.groups.find_or_create_by(alive: true, x: group.first[0][0], y: group.first[0][1])
 		end
+		# kinda dumb but gotta trigger Group.after_update
+		self.groups.first.update(x: self.groups.first.x)
 	end
 
 	def has_ended

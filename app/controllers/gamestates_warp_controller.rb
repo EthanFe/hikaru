@@ -44,9 +44,11 @@ class GamestatesWarpController < WarpCable::Controller
 	# update when endgame groups aliveness are toggled
 	def latest_endgame_state(params)
 		Group.after_update do
-			@game = Game.find_by(id: params[:id])
-			if @game
-				yield @game.endgame_groups
+			if Group.most_recent_group.game_id == params[:id]
+				@game = Game.find_by(id: params[:id])
+				if @game
+					yield @game.endgame_groups
+				end
 			end
 		end
 	end

@@ -27,11 +27,9 @@ document.addEventListener("turbolinks:load", function() {
 
 	// subscribe to endgame group aliveness updates
 	api.subscribe('Gamestates', 'latest_endgame_state', {id: game_id}, data => {
-		if (game_status == "scoring")
-		{
-			console.log("Got group aliveness update")
-			updateScreen(HISTORY_LIST, null, data)
-		}
+		console.log("Got group aliveness update")
+		game_status = "scoring"
+		updateScreen(HISTORY_LIST, null, data)
 	})
 
 	canvas.addEventListener('click', () => clickOnBoard(canvas, event), false);
