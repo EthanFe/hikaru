@@ -11,11 +11,15 @@ document.addEventListener("turbolinks:load", function() {
 
 	// get gamestate so far
 	api.trigger('Gamestates', 'full_game_state', {id: game_id}, data => {
-		game_status = data.game_status
-		move_history = data.history
+		if (data.game_status == "scoring") {
+			beginScoring(data.players_finished_scoring)
+		} else {
+			// pretty janky to have the above line and also this but gotta actually set this so people can play moves
+			game_status = data.game_status
+		}
 		console.log("Got full game state up to now")
-		HISTORY_LIST = move_history
-		updateScreen(move_history, null, data.groups)
+		HISTORY_LIST = data.history
+		updateScreen(HISTORY_LIST, null, data.groups, data.score)
 	})
 
 	// subscribe to state updates from now on
@@ -28,43 +32,25 @@ document.addEventListener("turbolinks:load", function() {
 	// subscribe to endgame group aliveness updates
 	api.subscribe('Gamestates', 'latest_endgame_state', {id: game_id}, data => {
 		console.log("Got group aliveness update")
-		game_status = "scoring"
-		updateScreen(HISTORY_LIST, null, data)
+		beginScoring(data.players_finished_scoring)
+		updateScreen(HISTORY_LIST, null, data.groups, data.score)
 	})
 
 	canvas.addEventListener('click', () => clickOnBoard(canvas, event), false);
 	document.getElementById("pass_button").addEventListener('click', () => passTurn(), false);
+	document.getElementById("finish_scoring_button").addEventListener('click', () => finishScoring(), false);
 });
 
-function passTurn() {
-	// send a move with no coordinates to represent a pass
-	api.trigger('Gamestates', 'play', {id: game_id}, data => {
-		console.log("Passed turn and got response")
-		console.log(data)
-	})
+function beginScoring(players_finished_scoring) {
+	game_status = "scoring"
+	document.getElementById("pass_button").classList.add("invisible")
+	document.getElementById("scoring").classList.remove("invisible")
+	document.getElementById("player1_finished_scoring").textContent = `Player 1${players_finished_scoring[0] ? "" : " not"} finished`
+	document.getElementById("player2_finished_scoring").textContent = `Player 2${players_finished_scoring[1] ? "" : " not"} finished`
 }
 
 function addNewMove(data) {
 	HISTORY_LIST.push(data)
-}
-
-function clickOnBoard(canvas, event) {
-	clickedSquareIndices = getCursorPosition(canvas, event)
-	console.log(clickedSquareIndices);
-
-	game_id = parseInt(document.URL.split("/games/")[1])
-
-	if (game_status == "scoring") {
-		api.trigger('Gamestates', 'toggle_aliveness', {id: game_id, x: clickedSquareIndices[0], y: clickedSquareIndices[1]}, data => {
-			console.log("Toggled aliveness of group to " + data)
-		})
-	} else {
-		// send request to the server to play the move
-		api.trigger('Gamestates', 'play', {id: game_id, x: clickedSquareIndices[0], y: clickedSquareIndices[1]}, data => {
-			console.log("Played move and got response")
-			updateErrorText(data)
-		})
-	}
 }
 
 function getCursorPosition(canvas, event) {

@@ -24,7 +24,8 @@ function getTileImages() {
 	return images
 }
 
-function updateScreen(data, move_id = null, groups = null) {
+function updateScreen(data, move_id = null, groups = null, score = null) {
+	debugger
   // just find the latest move if no historic move was specified
   if (move_id == null)
     move_id = data.length - 1
@@ -64,6 +65,7 @@ function updateScreen(data, move_id = null, groups = null) {
 		reDrawBoard(latest_state["board"])
 		displayKilledStones(latest_state["killed_stones"])
 	} else { // game has ended
+		// debugger
 		// this code is horrible. why is this not a function. why is updatenextmovetext not more flexible. oh well.
 		next_move_text = document.getElementById('next_move_text');
 		next_move_text.textContent = "Now Scoring -- Click on groups to toggle living status"

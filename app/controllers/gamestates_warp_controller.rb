@@ -1,5 +1,8 @@
 class GamestatesWarpController < WarpCable::Controller
-	before_action :find_game_object, only: [:play, :full_game_state, :toggle_aliveness]
+	before_action :find_game_object, only: [:play, :full_game_state, :toggle_aliveness, :finish_scoring]
+
+	# CLIENT ACTION METHODS
+	# Triggered when client performs an action modifying state
 
 	def play(params)
 		if params[:x] && params[:y]
@@ -19,15 +22,28 @@ class GamestatesWarpController < WarpCable::Controller
 		end
 	end
 
+	def finish_scoring(params)
+		@game.finish_scoring
+	end
+
+	# NEW PAGE OPENED METHODS
+
 	# including all history, for fresh page loads
 	def full_game_state(params)
-		game_status = @game.has_ended ? "scoring" : "active"
+		game_status = @game.get_status
 		response = {"game_status": game_status, "history": @game.history(@game.last_move)}
 		if @game.has_ended
 			response["groups"] = @game.endgame_groups
+			response["players_finished_scoring"] = @game.players_finished_scoring
+			if @game.scoring_ended
+				response["score"] = @game.score
+			end
 		end
 		yield response
 	end
+
+	# UPDATE ALL CLIENTS METHODS
+	# Called after state has been changed, to notify all other clients of the new state
 
 	# including only state resulting from latest move, for after a move is played
 	def latest_game_state(params)
@@ -47,7 +63,11 @@ class GamestatesWarpController < WarpCable::Controller
 			if Group.most_recent_group.game_id == params[:id]
 				@game = Game.find_by(id: params[:id])
 				if @game
-					yield @game.endgame_groups
+					response = {"groups": @game.endgame_groups, players_finished_scoring: @game.players_finished_scoring}
+					if @game.scoring_ended
+						response["score"] = @game.score
+					end
+					yield response
 				end
 			end
 		end

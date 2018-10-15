@@ -279,4 +279,143 @@ class Game < ApplicationRecord
 			false
 		end
 	end
+
+	def players_finished_scoring
+		[self.player1_finished_scoring, self.player2_finished_scoring]
+	end
+
+	def scoring_ended
+		self.player1_finished_scoring && self.player2_finished_scoring
+	end
+
+	def finish_scoring
+		if !self.player1_finished_scoring
+			self.update(player1_finished_scoring: true)
+		else
+			self.update(player2_finished_scoring: true)
+		end
+		# still pretty dumb but gotta trigger Group.after_update
+		self.groups.first.update(x: self.groups.first.x)
+	end
+
+	def get_status
+		if self.has_ended
+			if scoring_ended
+				"completed"
+			else
+				"scoring"
+			end
+		else
+			"active"
+		end
+	end
+
+	def score
+		endgame_board = game_state_after_removed_groups
+		areas = find_areas(endgame_board)
+		territory = find_territory(areas, endgame_board)
+		captures = get_total_captures
+		score = {"white": territory["white"] + captures["white"], "black": territory["black"] + captures["black"]}
+		score
+	end
+
+	def game_state_after_removed_groups
+		alive_groups = endgame_groups.select do |group|
+			group[:alive]
+		end
+		stones = {}
+		alive_groups.each do |group|
+			group[:stones].each do |stone|
+				stones[stone[0]] = stone[1]
+			end
+		end
+		stones
+	end
+
+	# time for some HORRIBLE REDUNDANT CODE WOOOOO
+
+	def find_areas(board)
+		territory_areas = []
+		size.times do |x|
+			size.times do |y|
+				space = [x,y]
+				# if theres no stone, aka space to potentially be territory
+				if board[space] == nil
+					joined_area = nil
+					territory_areas.each do |area|
+						# search through areas to see if space is connected to an existing area
+						if space_is_connected_to_area(space, area)
+							# if finding any area for space to attach to
+							if !joined_area
+								area << space
+								joined_area = area
+							# if already found an area and found an additional area to join up with, merge the two areas
+							else
+								joined_area.push(*area)
+								territory_areas.delete(area)
+							end
+						end
+					end
+					# if not next to any groups, make a new group consisting of this space
+					territory_areas << [space] unless joined_area
+				end
+			end
+		end
+		territory_areas
+	end
+
+	def space_is_connected_to_area(space, area)
+		area.any? do |area_space|
+			spaces_are_connected(area_space, space)
+		end
+	end
+
+	def spaces_are_connected(space1, space2)
+		(space1[0] == space2[0] && (space1[1] == space2[1] - 1 || space1[1] == space2[1] + 1)) || # x is equal, y is +/- 1
+		(space1[1] == space2[1] && (space1[0] == space2[0] - 1 || space1[0] == space2[0] + 1)) # y is equal, x is +/- 1
+	end
+
+	def find_territory(areas, board)
+		owned_territory = {"white" => 0, "black" => 0}
+		areas.each do |area|
+			owned_by = area_belongs_to(area, board)
+			if owned_by #otherwise it isnt territory/doesnt belong to just one person
+				puts "Territory of size " + area.length.to_s + " owned by " + owned_by + " including " + (area.first).to_s
+				owned_territory[owned_by] += area.length
+			end
+		end
+		owned_territory
+	end
+
+	def area_belongs_to(area, board)
+		adjacent_stones = adjacent_stones(area, board)
+		["white", "black"].find do |color|
+			adjacent_stones.all? do |space|
+				board[space] == color
+			end
+		end
+	end
+
+	def adjacent_stones(area, board)
+		adjacent_stones = {}
+		area.each do |space|
+			direction_offsets.each do |offset|
+				adjacent_space = [space[0] + offset[0], space[1] + offset[1]]
+				if board[adjacent_space] != nil && within_bounds(adjacent_space)
+					adjacent_stones[adjacent_space] = true
+				end
+			end
+		end
+		adjacent_stones.keys
+	end
+
+	def get_total_captures
+		captures = {"white" => 0, "black" => 0}
+		if last_move
+			last_move.full_move_chain.each do |move|
+				captures[get_move_color(move)] += get_board_state(move)[:killed_stones].length
+			end
+		end
+		captures
+	end
 end

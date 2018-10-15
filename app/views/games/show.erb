@@ -8,6 +8,11 @@
     <h4 id=error_text></h4>
 
     <button id="pass_button">Pass</button>
+    <div id="scoring" class="invisible">
+      <button id="finish_scoring_button">Finish Scoring</button>
+      <div id="player1_finished_scoring"></div>
+      <div id="player2_finished_scoring"></div>
+    </div>
     <br/><br/>
 
     <canvas id="canvas" width="<%= @canvas_size %>" height="<%= @canvas_size %>" onclick=getCursorPosition></canvas>
@@ -20,7 +25,6 @@
   </div>
   <div id=right-column>
     <ol id=history_list>
-      <h1>whee</h1>
     </ol>
   </div>
 </div>
