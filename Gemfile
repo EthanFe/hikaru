@@ -65,3 +65,5 @@ gem "pry", "~> 0.11.3"
 
 gem "warp-cable", git: "https://github.com/Joshua-Miles/warp-cable.git"
 
+
+gem "rack-cors", "~> 1.0"

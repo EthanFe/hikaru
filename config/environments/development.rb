@@ -63,7 +63,4 @@ Rails.application.configure do
     ActiveRecord::Base.logger = Rails.logger.clone
     ActiveRecord::Base.logger.level = Logger::INFO
   end
-
-  config.action_cable.allowed_request_origins = ['https://19c1a3d3.ngrok.io']
-  # config.web_console.whitelisted_ips = '2601:2c6:4780:1b33:dcfb:8cf1:977d:e115'
 end
