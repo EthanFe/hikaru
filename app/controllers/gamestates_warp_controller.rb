@@ -30,8 +30,7 @@ class GamestatesWarpController < WarpCable::Controller
 
 	# including all history, for fresh page loads
 	def full_game_state(params)
-		game_status = @game.get_status
-		response = {"game_status": game_status, "history": @game.history(@game.last_move)}
+		response = {"game_status": @game.get_status, "history": @game.history(@game.last_move)}
 		if @game.has_ended
 			response["groups"] = @game.endgame_groups
 			response["players_finished_scoring"] = @game.players_finished_scoring
@@ -63,7 +62,9 @@ class GamestatesWarpController < WarpCable::Controller
 			if Group.most_recent_group.game_id == params[:id]
 				@game = Game.find_by(id: params[:id])
 				if @game
-					response = {"groups": @game.endgame_groups, players_finished_scoring: @game.players_finished_scoring}
+					response = {"groups": @game.endgame_groups,
+											"players_finished_scoring": @game.players_finished_scoring,
+											"game_status": @game.get_status}
 					if @game.scoring_ended
 						response["score"] = @game.score
 					end

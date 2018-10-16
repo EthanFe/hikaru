@@ -11,15 +11,10 @@ document.addEventListener("turbolinks:load", function() {
 
 	// get gamestate so far
 	api.trigger('Gamestates', 'full_game_state', {id: game_id}, data => {
-		if (data.game_status == "scoring") {
-			beginScoring(data.players_finished_scoring)
-		} else {
-			// pretty janky to have the above line and also this but gotta actually set this so people can play moves
-			game_status = data.game_status
-		}
 		console.log("Got full game state up to now")
+		setGameMode(data.game_status)
 		HISTORY_LIST = data.history
-		updateScreen(HISTORY_LIST, null, data.groups, data.score)
+		updateScreen(HISTORY_LIST, null, data.groups, data.score, data.players_finished_scoring)
 	})
 
 	// subscribe to state updates from now on
@@ -32,8 +27,8 @@ document.addEventListener("turbolinks:load", function() {
 	// subscribe to endgame group aliveness updates
 	api.subscribe('Gamestates', 'latest_endgame_state', {id: game_id}, data => {
 		console.log("Got group aliveness update")
-		beginScoring(data.players_finished_scoring)
-		updateScreen(HISTORY_LIST, null, data.groups, data.score)
+		setGameMode(data.game_status)
+		updateScreen(HISTORY_LIST, null, data.groups, data.score, data.players_finished_scoring)
 	})
 
 	canvas.addEventListener('click', () => clickOnBoard(canvas, event), false);
@@ -41,12 +36,27 @@ document.addEventListener("turbolinks:load", function() {
 	document.getElementById("finish_scoring_button").addEventListener('click', () => finishScoring(), false);
 });
 
-function beginScoring(players_finished_scoring) {
-	game_status = "scoring"
-	document.getElementById("pass_button").classList.add("invisible")
-	document.getElementById("scoring").classList.remove("invisible")
-	document.getElementById("player1_finished_scoring").textContent = `Player 1${players_finished_scoring[0] ? "" : " not"} finished`
-	document.getElementById("player2_finished_scoring").textContent = `Player 2${players_finished_scoring[1] ? "" : " not"} finished`
+function setGameMode(new_game_status) {
+	game_status = new_game_status
+	if (game_status == "active") {
+
+	} else if (game_status == "scoring") {
+		document.getElementById("pass_button").classList.add("invisible")
+
+		document.getElementById("scoring").classList.remove("invisible")
+		document.getElementById("player1_finished_scoring").classList.remove("invisible")
+		document.getElementById("player2_finished_scoring").classList.remove("invisible")
+	} else if (game_status == "completed") {
+		document.getElementById('next_move_text').classList.add("invisible")
+		document.getElementById('stones_captured_text').classList.add("invisible")
+		document.getElementById('pass_button').classList.add("invisible")
+
+		document.getElementById("scoring").classList.add("invisible")
+		document.getElementById("player1_finished_scoring").classList.add("invisible")
+		document.getElementById("player2_finished_scoring").classList.add("invisible")
+
+		document.getElementById('final_score').classList.remove("invisible")
+	}
 }
 
 function addNewMove(data) {

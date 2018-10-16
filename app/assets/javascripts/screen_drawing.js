@@ -24,8 +24,7 @@ function getTileImages() {
 	return images
 }
 
-function updateScreen(data, move_id = null, groups = null, score = null) {
-	debugger
+function updateScreen(data, move_id = null, groups = null, score = null, players_finished_scoring = null) {
   // just find the latest move if no historic move was specified
   if (move_id == null)
     move_id = data.length - 1
@@ -65,12 +64,21 @@ function updateScreen(data, move_id = null, groups = null, score = null) {
 		reDrawBoard(latest_state["board"])
 		displayKilledStones(latest_state["killed_stones"])
 	} else { // game has ended
-		// debugger
-		// this code is horrible. why is this not a function. why is updatenextmovetext not more flexible. oh well.
-		next_move_text = document.getElementById('next_move_text');
-		next_move_text.textContent = "Now Scoring -- Click on groups to toggle living status"
+		reDrawBoard(groups)
+		if (score === null) {
+			// this code is horrible. why is this not a function. why is updatenextmovetext not more flexible. oh well.
+			next_move_text = document.getElementById('next_move_text');
+			next_move_text.textContent = "Now Scoring -- Click on groups to toggle living status"
 
-  	reDrawBoard(groups)
+			document.getElementById("player1_finished_scoring").textContent = `Player 1${players_finished_scoring[0] ? "" : " not"} finished`
+			document.getElementById("player2_finished_scoring").textContent = `Player 2${players_finished_scoring[1] ? "" : " not"} finished`
+		} else {
+			// scoring has ended
+
+			// this is not terrible code at all
+			finalScoreText = document.getElementById('final_score')
+			finalScoreText.textContent = `Final Score: ${score.black} vs ${score.white}`
+		}
 	}
 
 	if (latest_state["last_move"] != null)

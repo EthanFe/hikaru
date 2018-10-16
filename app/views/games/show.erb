@@ -3,16 +3,17 @@
     <h2><%= @game.name %></h2>
     <h4><%= link_to @game.players[0].name, @game.players[0] %> (B) vs <%= link_to @game.players[1].name, @game.players[1] %> (W)</h4>
     <h5 id=stones_captured_text>
-    
     <h4 id=next_move_text></h4>
     <h4 id=error_text></h4>
-
     <button id="pass_button">Pass</button>
+    
     <div id="scoring" class="invisible">
       <button id="finish_scoring_button">Finish Scoring</button>
       <div id="player1_finished_scoring"></div>
       <div id="player2_finished_scoring"></div>
     </div>
+
+    <div id="final_score" class="invisible"></div>
     <br/><br/>
 
     <canvas id="canvas" width="<%= @canvas_size %>" height="<%= @canvas_size %>" onclick=getCursorPosition></canvas>
